@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const api = axios.create({
   // baseURL: 'http://localhost:5000/api', 
-  baseURL: 'backend-rekber-production.up.railway.app', 
+  baseURL: 'https://backend-rekber-production.up.railway.app', 
   withCredentials: true, // Agar cookie/header aman
 });
 
