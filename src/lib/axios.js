@@ -1,10 +1,13 @@
 // src/lib/axios.js
 import axios from 'axios';
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const api = axios.create({
-  // baseURL: 'http://localhost:5000/api', 
-  baseURL: 'https://backend-rekber-production.up.railway.app', 
-  withCredentials: true, // Agar cookie/header aman
+  // Baca dari Environment Variable. Kalau tidak ada, baru pakai localhost.
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  withCredentials: true,
 });
 
 // Interceptor: Otomatis tempel Token di setiap request jika ada
