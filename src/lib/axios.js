@@ -1,8 +1,6 @@
 // src/lib/axios.js
 import axios from 'axios';
-import dotenv from 'dotenv'
 
-dotenv.config()
 
 const api = axios.create({
   // Baca dari Environment Variable. Kalau tidak ada, baru pakai localhost.
