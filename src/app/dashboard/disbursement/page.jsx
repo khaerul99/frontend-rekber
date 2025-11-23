@@ -89,7 +89,6 @@ export default function DisbursementPage() {
                 {transactions.map((trx) => {
                   // Hitung yang harus ditransfer (Total dari pembeli - Fee Admin)
                   const amountToTransfer = parseFloat(trx.amount); 
-                  
                   return (
                     <TableRow key={trx.id}>
                       <TableCell className="font-mono font-medium">{trx.trx_code}</TableCell>
