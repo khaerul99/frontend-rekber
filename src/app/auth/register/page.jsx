@@ -10,37 +10,12 @@ import { toast } from "sonner"; // Notifikasi
 import api from "@/lib/axios"; // Axios yang sudah kita setting
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PasswordInput } from "@/components/ui/password-input";
+import { useRegister } from "@/hooks/auth/useRegister";
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      // Panggil API Backend
-      await api.post("/auth/register", form);
-      
-      toast.success("Registrasi Berhasil! Silakan Login.");
-      router.push("/auth/login"); // Arahkan ke halaman login
-    } catch (error) {
-      // Tampilkan pesan error dari backend
-      toast.error(error.response?.data?.message || "Terjadi kesalahan");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { loading, handleChange, handleRegister } = useRegister();
+  
 
   return (
     <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -67,8 +42,8 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" name="password" type="password" placeholder="******" 
+              <PasswordInput 
+                id="password" name="password" placeholder="******" 
                 onChange={handleChange} required 
               />
               <p className="text-xs text-slate-500">*Min 8 karakter, 1 Huruf Besar, 1 Simbol</p>

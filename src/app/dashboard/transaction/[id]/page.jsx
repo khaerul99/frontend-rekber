@@ -7,23 +7,9 @@ import useUserStore from "@/store/useUserStore";
 import { io } from "socket.io-client"; // Wajib install: npm install socket.io-client
 import { format } from "date-fns";
 import { toast } from "sonner";
-import {
-  Send,
-  Paperclip,
-  CheckCircle,
-  Clock,
-  Truck,
-  AlertTriangle,
-  XCircle,
-} from "lucide-react";
+import { Send, CheckCircle, Clock, AlertTriangle, Eye, Undo2, X, Loader2, ExternalLink } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
   Dialog,
@@ -69,6 +55,7 @@ export default function TransactionDetailPage() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const chatEndRef = useRef(null); // Untuk auto-scroll chat ke bawah
+  const [viewImage, setViewImage] = useState(null);
 
   // State Upload
   const [uploading, setUploading] = useState(false);
@@ -214,6 +201,10 @@ export default function TransactionDetailPage() {
   const isBuyer = user.email === transaction.buyer?.email;
   const isSeller = user.email === transaction.seller?.email;
 
+  console.log("=== DEBUGGING ===");
+  console.log("Status Transaksi:", transaction.status);
+  console.log("Daftar Bukti (Proofs):", transaction.proofs);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[calc(100vh-100px)] ">
       {/* KOLOM KIRI: DETAIL & AKSI (Scrollable) */}
@@ -279,7 +270,6 @@ export default function TransactionDetailPage() {
           </CardHeader>
           <CardContent>
             {/* 1. JIKA STATUS PENDING & USER = PEMBELI */}
-            {/* INSTRUKSI PEMBAYARAN */}
             {transaction.status === "PENDING_PAYMENT" && isBuyer && (
               <div className="space-y-4">
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
@@ -442,6 +432,18 @@ export default function TransactionDetailPage() {
               </p>
             )}
 
+            {transaction.status === "VERIFYING" && isSeller && (
+              <p className="text-sm text-slate-600">
+                Menunggu verifikasi admin
+              </p>
+            )}
+
+            {transaction.status === "VERIFYING"  && (
+              <p className="text-sm text-slate-600">
+                Menunggu verifikasi admin
+              </p>
+            )}
+
             {/* 3. JIKA STATUS PROCESSED (Sudah Valid) & USER = PENJUAL */}
             {transaction.status === "PROCESSED" && isSeller && (
               <div className="space-y-3">
@@ -572,10 +574,96 @@ export default function TransactionDetailPage() {
               </div>
             )}
 
+            {/* 5. JIKA STATUS COMPLETED (Barang Diterima, Menunggu Admin Cairkan) */}
+            {transaction.status === "COMPLETED" && (
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200 text-center space-y-2">
+                <div className="flex justify-center text-green-600">
+                  <Clock size={32} />
+                </div>
+                <h3 className="font-bold text-green-700">
+                  Menunggu Pencairan Dana
+                </h3>
+                <p className="text-sm text-green-600">
+                  Transaksi selesai. Admin sedang memproses transfer dana ke
+                  rekening Penjual.
+                </p>
+              </div>
+            )}
+
+            {/* 6. JIKA STATUS DISBURSED (SUDAH CAIR) */}
+            {transaction.status === "DISBURSED" && (
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200 text-center space-y-3">
+                <div className="flex justify-center text-green-600">
+                  <CheckCircle size={32} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-green-700 text-lg">
+                    Dana Telah Dicairkan
+                  </h3>
+                  <p className="text-sm text-green-600">
+                    Admin telah mentransfer dana ke rekening Penjual. Transaksi
+                    Selesai.
+                  </p>
+                </div>
+
+                {/* Tombol Lihat Bukti Admin */}
+                {transaction.proofs?.find(
+                  (p) => p.type === "admin_transfer_proof"
+                ) && (
+                  <div className="pt-2">
+                    <a
+                      href={`http://localhost:5000${
+                        transaction.proofs.find(
+                          (p) => p.type === "admin_transfer_proof"
+                        ).imageUrl
+                      }`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <Button
+                        variant="outline"
+                        className="bg-white border-green-300 text-green-700 hover:bg-green-50"
+                      >
+                        <Eye className="mr-2 h-4 w-4" /> Lihat Bukti Transfer
+                        Admin
+                      </Button>
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {transaction.status === 'REFUNDED' && (
+                 <div className="bg-slate-100 p-4 rounded-lg border border-slate-300 text-center space-y-3">
+                    <div className="flex justify-center text-slate-600">
+                        <Undo2 size={32} />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-slate-800 text-lg">Dana Telah Dikembalikan</h3>
+                        <p className="text-sm text-slate-600">
+                           Admin telah mentransfer balik dana ke rekening Pembeli. Transaksi Dibatalkan.
+                        </p>
+                    </div>
+                    
+                    {/* Tombol Lihat Bukti Refund */}
+                    {transaction.proofs?.find(p => p.type === 'admin_refund_proof') && (
+                        <div className="pt-2">
+                            <Button 
+                                variant="outline" 
+                                className="bg-white border-slate-300 text-slate-700 hover:bg-slate-200"
+                                onClick={() => setViewImage(transaction.proofs.find(p => p.type === 'admin_refund_proof').imageUrl)}
+                            >
+                                <Eye className="mr-2 h-4 w-4" /> Lihat Bukti Refund
+                            </Button>
+                        </div>
+                    )}
+                 </div>
+              )}
+
             {/* DEFAULT */}
-            {["COMPLETED", "CANCELLED"].includes(transaction.status) && (
+            {["CANCELLED"].includes(transaction.status) && (
               <p className="text-sm font-medium text-slate-500">
-                Transaksi ini telah selesai.
+                Transaksi ini di cancel
               </p>
             )}
           </CardContent>
@@ -628,7 +716,7 @@ export default function TransactionDetailPage() {
             isMe
               ? "bg-blue-600 text-white rounded-br-none"
               : isAdmin
-              ? "bg-yellow-100 text-yellow-800 border border-yellow-200" 
+              ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
               : "bg-slate-100 text-slate-800 rounded-bl-none border border-slate-200"
           }
        `}
@@ -662,6 +750,53 @@ export default function TransactionDetailPage() {
           </form>
         </div>
       </Card>
+
+      <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
+        {/* STYLE KHUSUS DARK MODE DI SINI (bg-black/95, text-white) */}
+        <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden flex flex-col bg-white/95 border-none text-white">
+            
+            {/* Judul untuk screen reader (wajib ada tapi tersembunyi) */}
+            <DialogHeader className="sr-only">
+               <DialogTitle>Preview Bukti Transaksi</DialogTitle>
+            </DialogHeader>
+
+            {/* Tombol Close Custom di pojok kanan atas */}
+            <button 
+                onClick={() => setViewImage(null)}
+                className="absolute top-4 right-4 z-50 p-2 bg-white/50 hover:bg-black/80 rounded-full text-white/80 hover:text-white transition-colors"
+            >
+               {/* <X size={24} /> */}
+            </button>
+
+            {/* Area Gambar */}
+            <div className="flex-1 w-full h-full relative flex items-center justify-center p-4 bg-white/95 overflow-hidden">
+                {viewImage ? (
+                    <img src={`http://localhost:5000${viewImage}`} alt="Bukti Full" className="w-auto h-auto max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                    />
+                ) : (
+                    // Loading State
+                    <div className="flex flex-col items-center text-white/50">
+                        <Loader2 className="h-10 w-10 animate-spin mb-2" />
+                        <p>Memuat gambar...</p>
+                    </div>
+                 )}
+            </div>
+
+            {/* Footer Gelap */}
+            <div className="bg-white/80 p-4 flex justify-end gap-2 backdrop-blur-md border-t border-white/10">
+                <Button variant="ghost" size="sm" onClick={() => setViewImage(null)} className="text-black hover:bg-white/20 hover:text-white">
+                    Tutup
+                </Button>
+                {viewImage && (
+                    <a href={`http://localhost:5000${viewImage}`} target="_blank" rel="noreferrer">
+                        <Button size="sm" className=" hover:bg-gray-700 border-none">
+                            Buka Original <ExternalLink size={14} className="ml-2"/>
+                        </Button>
+                    </a>
+                )}
+            </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -29,7 +29,7 @@ export default function NavLinks({ onNavigate }) {
 
 if (user?.role === "ADMIN") {
     
-    navItems = navItems.filter(item => item.href !== "/dashboard/history" && item.href !== "/dashboard/create");
+    navItems = navItems.filter(item => item.href !== "/dashboard/history" && item.href !== "/dashboard/create" && item.href !== "/dashboard/help");
 
     navItems.push(
       {

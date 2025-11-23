@@ -1,72 +1,18 @@
-// src/app/login/page.jsx
+
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { toast } from "sonner";
-import api from "@/lib/axios";
-import useUserStore from "@/store/useUserStore";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-input";
+import { useLogin } from "@/hooks/auth/useLogin";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { login } = useUserStore();
-  const [loading, setLoading] = useState(false);
+  const {form, step, loading, handleChange, handleLogin, setStep} = useLogin();
   
-  // State untuk mengontrol tampilan (Login biasa vs Input OTP)
-  const [step, setStep] = useState("LOGIN"); // "LOGIN" atau "2FA"
-  
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    twofaToken: "" // Tambahan untuk kode OTP
-  });
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      // Kirim semua data form (termasuk token jika ada)
-      const res = await api.post("/auth/login", form);
-
-      // 1. Jika Backend minta 2FA
-      if (res.data.require2FA) {
-        setStep("2FA"); // Ganti tampilan ke Input OTP
-        toast.info("Masukkan kode Authenticator Anda.");
-        setLoading(false);
-        return;
-      }
-
-      // 2. Jika Login Sukses (Dapat Token)
-      const token = res.data.token;
-      localStorage.setItem("token", token); 
-      login(res.data, token);
-
-      toast.success("Login Berhasil!");
-      router.push("/dashboard"); 
-      
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Terjadi kesalahan");
-      
-      // Jika kode salah, reset input token biar user bisa coba lagi
-      if (step === "2FA") {
-          setForm({ ...form, twofaToken: "" });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="flex h-screen items-center justify-center bg-slate-50">
       <Card className="w-[350px] shadow-lg">
@@ -93,8 +39,8 @@ export default function LoginPage() {
                     </div>
                     <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input 
-                        id="password" name="password" type="password" placeholder="******" 
+                    <PasswordInput 
+                        id="password" name="password" placeholder="******" 
                         onChange={handleChange} required 
                     />
                     </div>

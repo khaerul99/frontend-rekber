@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+
 import Link from "next/link";
 import { format } from "date-fns";
 import { Search, Filter, FileText } from "lucide-react";
@@ -26,63 +25,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { useHistoryAdmin } from "@/hooks/dashboard/admin-history/useHistoryAdmin";
+
 export default function AdminHistoryPage() {
-  const [transactions, setTransactions] = useState([]);
-  const [filteredTransactions, setFilteredTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-
-  // 1. Fetch Data (Endpoint Admin)
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get("/transactions/admin/all");
-        setTransactions(res.data);
-        setFilteredTransactions(res.data);
-      } catch (error) {
-        console.error("Gagal ambil data", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // 2. Filter Logic
-  useEffect(() => {
-    let result = transactions;
-
-    if (statusFilter !== "ALL") {
-      result = result.filter((trx) => trx.status === statusFilter);
-    }
-
-    if (search) {
-      const lowerSearch = search.toLowerCase();
-      result = result.filter((trx) => 
-        trx.trx_code.toLowerCase().includes(lowerSearch) || 
-        trx.buyer?.username.toLowerCase().includes(lowerSearch) ||
-        trx.seller?.username.toLowerCase().includes(lowerSearch)
-      );
-    }
-
-    setFilteredTransactions(result);
-  }, [search, statusFilter, transactions]);
-
-  // Helper Warna
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "PENDING_PAYMENT": return "bg-yellow-500";
-      case "VERIFYING": return "bg-orange-500";
-      case "PROCESSED": return "bg-blue-500";
-      case "SENT": return "bg-purple-500";
-      case "COMPLETED": return "bg-green-500";
-      case "CANCELLED": return "bg-slate-500";
-      default: return "bg-slate-500";
-    }
-  };
+  const {filteredTransactions, loading, search, statusFilter,  setSearch, setStatusFilter, getStatusColor} = useHistoryAdmin();
+  
 
   return (
     <div className="space-y-6">
@@ -109,7 +56,9 @@ export default function AdminHistoryPage() {
                 <SelectItem value="VERIFYING">Verifikasi</SelectItem>
                 <SelectItem value="PROCESSED">Diproses</SelectItem>
                 <SelectItem value="SENT">Dikirim</SelectItem>
-                <SelectItem value="COMPLETED">Selesai</SelectItem>
+                <SelectItem value="COMPLETED">Selesai (Belum Cair)</SelectItem> {/* Perjelas Labelnya */}
+                <SelectItem value="DISBURSED">Sudah Cair (TF Admin)</SelectItem>
+                <SelectItem value="DISPUTED">Sengketa</SelectItem>
                 <SelectItem value="CANCELLED">Dibatalkan</SelectItem>
               </SelectContent>
             </Select>

@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 // Import di paling atas
 import DashboardChart from "@/components/dashboard/DashboardChart";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info, CheckCircle2, AlertTriangle } from "lucide-react";
 
 export default function DashboardPage() {
   const { user } = useUserStore();
@@ -26,6 +28,11 @@ export default function DashboardPage() {
   // State untuk User Biasa
   const [transactions, setTransactions] = useState([]);
   const [chartData, setChartData] = useState([]);
+  const [userStats, setUserStats] = useState({
+    totalSpent: 0,
+    totalEarned: 0,
+    activeTransactions: 0
+  });
   
   // State untuk Admin
   const [stats, setStats] = useState({
@@ -51,6 +58,9 @@ export default function DashboardPage() {
         } else {
             const res = await api.get("/transactions/my-transactions");
             setTransactions(res.data);
+
+            const resStats = await api.get("/user/stats");
+            setUserStats(resStats.data);
         }
       } catch (error) {
         console.error("Gagal ambil data dashboard", error);
@@ -175,33 +185,93 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Link href="/dashboard/create">
-           <Button>+ Transaksi Baru</Button>
-        </Link>
+        <div>
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-slate-500">Halo, {user?.username} 👋</p>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Halo, {user?.username || "User"} 👋</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-slate-500">Selamat datang kembali di panel transaksi aman Anda.</p>
-        </CardContent>
-      </Card>
+      {!user?.bank_account && (
+        <Alert className="bg-orange-50 border-orange-200 text-orange-800">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Rekening Bank Belum Diatur!</AlertTitle>
+          <AlertDescription className="flex items-center justify-between">
+            <span>
+              Anda belum mengatur rekening pencairan dana. Mohon lengkapi agar proses pencairan tidak terhambat.
+            </span>
+            <Link href="/dashboard/profile">
+                <Button size="sm" variant="outline" className="bg-white border-orange-300 text-orange-800 hover:bg-orange-100 ml-4">
+                    Atur Sekarang
+                </Button>
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
 
+      {/* KARTU STATISTIK USER */}
+      <div className="grid gap-4 md:grid-cols-3">
+          {/* Card 1: Pemasukan (Penjualan) */}
+          <Card className="bg-green-50 border-green-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-green-700">Total Pemasukan</CardTitle>
+                  <ArrowUpRight className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                  <div className="text-2xl font-bold text-green-700">
+                      Rp {parseInt(userStats.totalEarned).toLocaleString("id-ID")}
+                  </div>
+                  <p className="text-xs text-green-600 mt-1">Dari penjualan sukses</p>
+              </CardContent>
+          </Card>
+
+          {/* Card 2: Pengeluaran (Pembelian) */}
+          <Card className="bg-blue-50 border-blue-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-blue-700">Total Pengeluaran</CardTitle>
+                  <Wallet className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                  <div className="text-2xl font-bold text-blue-700">
+                      Rp {parseInt(userStats.totalSpent).toLocaleString("id-ID")}
+                  </div>
+                  <p className="text-xs text-blue-600 mt-1">Untuk pembelian barang/jasa</p>
+              </CardContent>
+          </Card>
+
+          {/* Card 3: Transaksi Aktif */}
+          <Card className={userStats.activeTransactions > 0 ? "border-orange-300 bg-orange-50" : ""}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-700">Sedang Berjalan</CardTitle>
+                  <AlertCircle className={`h-4 w-4 ${userStats.activeTransactions > 0 ? "text-orange-500" : "text-slate-400"}`} />
+              </CardHeader>
+              <CardContent>
+                  <div className="text-2xl font-bold text-slate-800">
+                      {userStats.activeTransactions} Transaksi
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">Menunggu proses / penyelesaian</p>
+              </CardContent>
+          </Card>
+      </div>
+
+      {/* Tabel Riwayat (Tetap Ada) */}
       <Card>
         <CardHeader>
-          <CardTitle>Riwayat Transaksi</CardTitle>
+          <CardTitle>Riwayat Transaksi Terbaru</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <p className="text-center py-4">Memuat data...</p>
           ) : transactions.length === 0 ? (
-            <p className="text-center py-4 text-slate-500">Belum ada transaksi.</p>
+            <div className="text-center py-12 border-2 border-dashed rounded-lg text-slate-400">
+                <p>Belum ada riwayat transaksi.</p>
+                <Link href="/dashboard/create" className="text-blue-600 hover:underline text-sm">Mulai transaksi sekarang</Link>
+            </div>
           ) : (
             <Table>
+              {/* ... (Isi tabel sama seperti sebelumnya) ... */}
+              {/* Copy Paste TableHeader dan TableBody dari kode lama Anda */}
               <TableHeader>
                 <TableRow>
                   <TableHead>Kode TRX</TableHead>
