@@ -10,7 +10,8 @@ import {
   CreditCard, 
   Wallet, 
   AlertCircle,
-  ArrowUpRight 
+  ArrowUpRight ,
+  Star
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,8 +70,12 @@ export default function DashboardPage() {
       }
     };
 
+    
+
     if (user) fetchData();
   }, [user]);
+
+
 
   // --- TAMPILAN KHUSUS ADMIN ---
   if (user?.role === "ADMIN") {

@@ -31,18 +31,30 @@ export default function LoginPage() {
             {step === "LOGIN" && (
                 <>
                     <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                        id="email" name="email" type="email" placeholder="nama@email.com" 
-                        onChange={handleChange} required 
-                    />
+                        <Label htmlFor="email">Email</Label>
+                        <Input 
+                            id="email" name="email" type="email" placeholder="nama@email.com" 
+                            onChange={handleChange} required 
+                        />
                     </div>
+                    
                     <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <PasswordInput 
-                        id="password" name="password" placeholder="******" 
-                        onChange={handleChange} required 
-                    />
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="password">Password</Label>
+                            
+                        </div>
+                        
+                        <PasswordInput 
+                            id="password" name="password" placeholder="******" 
+                            onChange={handleChange} required 
+                        />
+                        <Link 
+                                href="/auth/forgot-password" 
+                                className="text-xs text-blue-600 hover:underline"
+                                tabIndex="-1" // Agar tidak mengganggu urutan tab
+                            >
+                                Lupa Password?
+                            </Link>
                     </div>
                 </>
             )}

@@ -15,6 +15,7 @@ export function useDisbursement() {
   const [actionType, setActionType] = useState(""); // 'DISBURSE' atau 'REFUND'
   const [proofFile, setProofFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [isPinOpen, setIsPinOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -70,7 +71,34 @@ export function useDisbursement() {
     navigator.clipboard.writeText(text);
     toast.success("Berhaasil disalin " + text);
   };
+
+  const onUploadSubmit = () => {
+      if (!proofFile) return toast.error("Wajib upload bukti!");
+      setIsPinOpen(true); // <--- BUKA PIN DULU, JANGAN LANGSUNG KIRIM
+  };
+
+  // B. Fungsi Eksekusi (Dipanggil jika PIN Benar)
+  const executeDisbursement = async () => {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("image", proofFile);
+
+    try {
+      const url = actionType === 'DISBURSE' 
+        ? `/transactions/${selectedTrx.id}/disburse`
+        : `/transactions/${selectedTrx.id}/refund`;
+
+      await api.patch(url, formData);
+      toast.success("Berhasil diproses!");
+      setIsModalOpen(false); // Tutup modal upload
+      fetchData();
+    } catch (error) {
+      toast.error("Gagal memproses");
+    } finally {
+      setUploading(false);
+    }
+  };
   return {
-         actionType, transactions, isModalOpen, refunds, selectedTrx, loading, proofFile, uploading,handleSubmit,setIsModalOpen, openUploadModal, copyText, setProofFile
+         actionType, transactions, isPinOpen,isModalOpen, refunds, selectedTrx, loading, proofFile, uploading, handleSubmit, onUploadSubmit, executeDisbursement,setIsModalOpen, openUploadModal, setIsPinOpen,  copyText, setProofFile
   };
 }

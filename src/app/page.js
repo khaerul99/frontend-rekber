@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import api from "@/lib/axios"; // Pastikan axios sudah di-setup
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ShieldCheck, Zap, MessageCircle, Search, 
-  Menu, X, ArrowRight, Wallet, Lock 
+  Menu, X, ArrowRight, Wallet , Star
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -20,6 +20,7 @@ export default function LandingPage() {
   const [trackResult, setTrackResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [reviews, setReviews] = useState([]);
 
   // Fungsi Cek Resi
   const handleTrack = async (e) => {
@@ -40,6 +41,18 @@ export default function LandingPage() {
       setLoading(false);
     }
   };
+
+    useEffect(() => {
+    const fetchReviews = async () => {
+        try {
+            const res = await api.get("/reviews/public");
+            setReviews(res.data);
+        } catch (error) {
+            console.error("Gagal load review");
+        }
+    };
+    fetchReviews();
+}, []);
 
   // Helper Warna Status
   const getStatusColor = (status) => {
@@ -169,6 +182,45 @@ export default function LandingPage() {
                         Tim admin siap membantu menengahi sengketa (dispute) secara adil dan transparan.
                     </CardContent>
                 </Card>
+            </div>
+        </div>
+      </section>
+
+      {/* --- TESTIMONI SECTION --- */}
+      <section className="py-20 bg-slate-50">
+        <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-4">Apa Kata Mereka?</h2>
+                <p className="text-slate-500">Pengalaman pengguna yang telah bertransaksi aman bersama kami.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+                {reviews.length === 0 ? (
+                    <p className="text-center col-span-3 text-slate-400">Belum ada ulasan.</p>
+                ) : (
+                    reviews.map((rev) => (
+                        <Card key={rev.id} className="border-none shadow-sm hover:shadow-md transition">
+                            <CardContent className="pt-6">
+                                <div className="flex gap-1 mb-4">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star 
+                                            key={i} 
+                                            size={16} 
+                                            className={i < rev.rating ? "fill-yellow-400 text-yellow-400" : "text-slate-200"} 
+                                        />
+                                    ))}
+                                </div>
+                                <p className="text-slate-700 mb-4 italic">{rev.comment}</p>
+                                <div className="flex items-center gap-3">
+                                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">
+                                        {rev.reviewer.username.charAt(0).toUpperCase()}
+                                    </div>
+                                    <p className="text-sm font-bold text-slate-900">{rev.reviewer.username}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))
+                )}
             </div>
         </div>
       </section>

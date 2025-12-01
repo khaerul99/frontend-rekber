@@ -5,13 +5,13 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { Button } from "@/components/ui/button";
 import { Menu, Wallet } from "lucide-react";
 import NavLinks from "./Navlinks";
-import UserNav from "./UserNav";
+// import UserNav from "./UserNav";
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-white px-4 shadow-sm md:hidden">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-white px-2  md:hidden">
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon">
@@ -33,7 +33,7 @@ export default function MobileNav() {
              <NavLinks onNavigate={() => setIsOpen(false)} />
            </div>
 
-           <UserNav />
+           {/* <UserNav /> */}
         </SheetContent>
       </Sheet>
       

@@ -7,9 +7,21 @@ import useUserStore from "@/store/useUserStore";
 import { io } from "socket.io-client"; // Wajib install: npm install socket.io-client
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Send, CheckCircle, Clock, AlertTriangle, Eye, Undo2, X, Loader2, ExternalLink } from "lucide-react";
-
+import {
+  Send,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  Eye,
+  Undo2,
+  Loader2,
+  Banknote,
+  ExternalLink,
+  Star,
+  XCircle,  
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TableCell } from "@/components/ui/table";
 
 import {
   Dialog,
@@ -47,6 +59,7 @@ export default function TransactionDetailPage() {
   const { id } = useParams(); // Ambil ID dari URL
   const { user } = useUserStore();
 
+  const [selectedProof, setSelectedProof] = useState(null);
   const [transaction, setTransaction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adminBanks, setAdminBanks] = useState([]);
@@ -60,6 +73,7 @@ export default function TransactionDetailPage() {
   // State Upload
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const returnFileRef = useRef(null);
 
   // preview
   const [selectedFile, setSelectedFile] = useState(null);
@@ -67,6 +81,12 @@ export default function TransactionDetailPage() {
 
   const [isDisputeOpen, setIsDisputeOpen] = useState(false); // Untuk buka/tutup modal
   const [disputeReason, setDisputeReason] = useState("");
+
+  // State Review
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   // 1. Fetch Data Transaksi & Setup Socket
   useEffect(() => {
@@ -181,6 +201,23 @@ export default function TransactionDetailPage() {
     }
   };
 
+  const handleReturnUpload = async (e) => {
+    const file = e.target.files[0];
+    const desc = document.getElementById("returnDesc").value;
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("description", desc);
+
+    try {
+      await api.patch(`/transactions/${id}/return-send`, formData);
+      toast.success("Bukti Retur Terkirim!");
+      window.location.reload();
+    } catch (error) {
+      toast.error("Gagal kirim");
+    }
+  };
+
   const handleDispute = async () => {
     if (!disputeReason.trim()) return toast.error("Alasan wajib diisi!");
 
@@ -194,6 +231,21 @@ export default function TransactionDetailPage() {
     }
   };
 
+  const handleSubmitReview = async () => {
+    try {
+        await api.post("/reviews", {
+            transactionId: id,
+            rating,
+            comment
+        });
+        toast.success("Terima kasih atas ulasan Anda!");
+        setIsReviewOpen(false);
+        setReviewSubmitted(true); // Hilangkan tombol setelah submit
+    } catch (error) {
+        toast.error("Gagal mengirim ulasan");
+    }
+  };
+
   if (loading) return <div className="p-8 text-center">Memuat Detail...</div>;
   if (!transaction)
     return <div className="p-8 text-center">Transaksi tidak ditemukan</div>;
@@ -201,9 +253,8 @@ export default function TransactionDetailPage() {
   const isBuyer = user.email === transaction.buyer?.email;
   const isSeller = user.email === transaction.seller?.email;
 
-  console.log("=== DEBUGGING ===");
-  console.log("Status Transaksi:", transaction.status);
-  console.log("Daftar Bukti (Proofs):", transaction.proofs);
+  const proofImg = transaction.proofs?.find(p => p.type === 'payment_proof')?.imageUrl;
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[calc(100vh-100px)] ">
@@ -438,7 +489,7 @@ export default function TransactionDetailPage() {
               </p>
             )}
 
-            {transaction.status === "VERIFYING"  && (
+            {transaction.status === "VERIFYING" && (
               <p className="text-sm text-slate-600">
                 Menunggu verifikasi admin
               </p>
@@ -607,46 +658,178 @@ export default function TransactionDetailPage() {
                 </div>
 
                 {/* Tombol Lihat Bukti Admin */}
-                {transaction.proofs?.find(
-                  (p) => p.type === "admin_transfer_proof"
-                ) && (
-                  <div className="pt-2">
-                    <a
-                      href={`http://localhost:5000${
-                        transaction.proofs.find(
+                <TableCell className="text-center flex justify-center">
+                        {transaction.proofs ? (
+                            <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => setSelectedProof(`http://localhost:5000${ transaction.proofs.find(
                           (p) => p.type === "admin_transfer_proof"
-                        ).imageUrl
-                      }`}
-                      target="_blank"
-                      rel="noreferrer"
+                        ).imageUrl}`)}
+                            >
+                                <Eye size={14} className="mr-1"/> Lihat
+                            </Button>
+                        ) : (
+                            <Badge variant="outline" className="text-red-500">No File</Badge>
+                        )}
+                      </TableCell>
+              </div>
+            )}
+
+            {transaction.status === "RETURN_PROCESS" && (
+              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 space-y-3">
+                <h3 className="font-bold text-orange-700 text-center">
+                  Proses Retur Disetujui
+                </h3>
+                <p className="text-sm text-orange-800 text-center">
+                  Admin menyetujui retur. Pembeli, silakan kirim barang ke
+                  alamat Penjual (cek di chat), lalu upload bukti resi di sini.
+                </p>
+
+                {isBuyer && (
+                  <div className="space-y-2 pt-2">
+                    {/* Input Teks Resi */}
+                    <Input
+                      placeholder="Nomor Resi / Keterangan Pengiriman"
+                      id="returnDesc"
+                    />
+
+                    <Button
+                      className="w-full bg-orange-600 hover:bg-orange-700"
+                      disabled={uploading}
+                      onClick={() => {
+                        // 1. Cek resi
+                        const desc =
+                          document.getElementById("returnDesc").value;
+                        if (!desc)
+                          return toast.error(
+                            "Harap isi Nomor Resi / Keterangan dulu!"
+                          );
+
+                        // 2. Panggil file input menggunakan REF (Lebih Aman)
+                        if (returnFileRef.current) {
+                          returnFileRef.current.click();
+                        }
+                      }}
                     >
-                      <Button
-                        variant="outline"
-                        className="bg-white border-green-300 text-green-700 hover:bg-green-50"
-                      >
-                        <Eye className="mr-2 h-4 w-4" /> Lihat Bukti Transfer
-                        Admin
-                      </Button>
-                    </a>
+                      {uploading ? "Mengupload..." : "Pilih Foto Resi & Kirim"}
+                    </Button>
+
+                    {/* Input File Tersembunyi (PAKE REF) */}
+                    <input
+                      type="file"
+                      hidden
+                      ref={returnFileRef} // <--- GANTI id JADI ref
+                      onChange={handleReturnUpload}
+                      accept="image/*"
+                    />
                   </div>
                 )}
               </div>
             )}
 
-            {transaction.status === 'REFUNDED' && (
-                 <div className="bg-slate-100 p-4 rounded-lg border border-slate-300 text-center space-y-3">
-                    <div className="flex justify-center text-slate-600">
-                        <Undo2 size={32} />
+            {transaction.status === "RETURN_SENT" && (
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 text-center space-y-3">
+                <h3 className="font-bold text-purple-700">
+                  Barang Sedang Dikembalikan
+                </h3>
+                <p className="text-sm text-purple-800">
+                  Pembeli telah mengirim balik barang. Menunggu konfirmasi
+                  Penjual.
+                </p>
+
+                {/* Tombol Lihat Bukti Retur */}
+                {transaction.proofs?.find(
+                  (p) => p.type === "return_shipping_proof"
+                ) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setViewImage(
+                        transaction.proofs.find(
+                          (p) => p.type === "return_shipping_proof"
+                        ).imageUrl
+                      )
+                    }
+                  >
+                    <Eye className="mr-2 h-4 w-4" /> Lihat Resi Retur
+                  </Button>
+                )}
+
+                {/* Tombol Konfirmasi Penjual */}
+                {isSeller && (
+                        <div className="pt-2">
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                                        <CheckCircle className="mr-2 h-4 w-4" /> Barang Sudah Saya Terima
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Konfirmasi Penerimaan Retur?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Pastikan barang retur sudah sampai di tangan Anda. 
+                                            Setelah dikonfirmasi, Admin akan memproses <strong>Pengembalian Dana (Refund)</strong> ke Pembeli.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                                        <AlertDialogAction 
+                                            className="bg-purple-600 hover:bg-purple-700"
+                                            onClick={async () => {
+                                                try {
+                                                    await api.patch(`/transactions/${id}/return-confirm`);
+                                                    toast.success("Konfirmasi Berhasil");
+                                                    window.location.reload();
+                                                } catch (error) {
+                                                    toast.error("Gagal konfirmasi");
+                                                }
+                                            }}
+                                        >
+                                            Ya, Barang Diterima
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    )}
+              </div>
+            )}
+
+            {transaction.status === 'REFUND_PENDING' && (
+                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-center space-y-3">
+                    <div className="flex justify-center text-blue-600">
+                        <Banknote size={32} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-800 text-lg">Dana Telah Dikembalikan</h3>
-                        <p className="text-sm text-slate-600">
-                           Admin telah mentransfer balik dana ke rekening Pembeli. Transaksi Dibatalkan.
+                        <h3 className="font-bold text-blue-700 text-lg">Menunggu Proses Refund</h3>
+                        <p className="text-sm text-blue-600">
+                           Penjual telah menerima barang retur. Saat ini Admin sedang memproses pengembalian dana ke rekening Pembeli.
                         </p>
                     </div>
-                    
-                    {/* Tombol Lihat Bukti Refund */}
-                    {transaction.proofs?.find(p => p.type === 'admin_refund_proof') && (
+                 </div>
+              )}
+
+            {/* RETURN_PROCESS (Menunggu Pembeli Kirim) */}
+            {transaction.status === "REFUNDED" &&  (
+              <div className="bg-slate-100 p-4 rounded-lg border border-slate-300 text-center space-y-3">
+                <div className="flex justify-center text-slate-600">
+                  <Undo2 size={32} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800 text-lg">
+                    Dana Telah Dikembalikan
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    Admin telah mentransfer balik dana ke rekening Pembeli.
+                    Transaksi Dibatalkan.
+                  </p>
+                </div>
+
+                {/* Tombol Lihat Bukti Refund */}
+                {isBuyer && transaction.proofs?.find(p => p.type === 'admin_refund_proof') && (
                         <div className="pt-2">
                             <Button 
                                 variant="outline" 
@@ -657,8 +840,9 @@ export default function TransactionDetailPage() {
                             </Button>
                         </div>
                     )}
-                 </div>
-              )}
+              </div>
+            )}
+
 
             {/* DEFAULT */}
             {["CANCELLED"].includes(transaction.status) && (
@@ -666,9 +850,66 @@ export default function TransactionDetailPage() {
                 Transaksi ini di cancel
               </p>
             )}
+
+            {transaction.review && isBuyer && (
+              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+                  <p className="text-sm text-yellow-700 font-bold">Anda sudah memberikan ulasan:</p>
+                  <div className="flex justify-center my-2">
+                      {[...Array(transaction.review.rating)].map((_, i) => (
+                          <Star key={i} size={16} className="fill-yellow-500 text-yellow-500" />
+                      ))}
+                  </div>
+                  <p className="text-sm text-slate-600 italic">{transaction.review.comment}</p>
+              </div>
+          )}
+
+             {['COMPLETED', 'DISBURSED'].includes(transaction.status) && isBuyer && !reviewSubmitted && !transaction.review && (
+                 <div className="mt-4">
+                    <Button onClick={() => setIsReviewOpen(true)} className="w-full bg-yellow-500 hover:bg-yellow-600 text-white">
+                        <Star className="mr-2 h-4 w-4 fill-white" /> Beri Ulasan Penjual
+                    </Button>
+
+                    {/* MODAL INPUT REVIEW */}
+                    <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Beri Ulasan</DialogTitle>
+                                <DialogDescription>Bagaimana pengalaman transaksi Anda dengan penjual ini?</DialogDescription>
+                            </DialogHeader>
+                            
+                            <div className="space-y-4 py-2">
+                                {/* Input Bintang */}
+                                <div className="flex justify-center gap-2">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button key={star} onClick={() => setRating(star)} type="button">
+                                            <Star 
+                                                size={32} 
+                                                className={star <= rating ? "fill-yellow-400 text-yellow-400" : "text-slate-300"} 
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                <Label>Komentar</Label>
+                                <Textarea 
+                                    placeholder="Contoh: Proses cepat, penjual ramah..." 
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                />
+                            </div>
+
+                            <DialogFooter>
+                                <Button onClick={handleSubmitReview}>Kirim Ulasan</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                 </div>
+              )}
           </CardContent>
         </Card>
       </div>
+
+     
 
       {/* KOLOM KANAN: CHAT ROOM (Fixed Height) */}
       <Card className="flex flex-col h-full max-h-[600px]">
@@ -754,46 +995,83 @@ export default function TransactionDetailPage() {
       <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
         {/* STYLE KHUSUS DARK MODE DI SINI (bg-black/95, text-white) */}
         <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden flex flex-col bg-white/95 border-none text-white">
-            
-            {/* Judul untuk screen reader (wajib ada tapi tersembunyi) */}
-            <DialogHeader className="sr-only">
-               <DialogTitle>Preview Bukti Transaksi</DialogTitle>
-            </DialogHeader>
+          {/* Judul untuk screen reader (wajib ada tapi tersembunyi) */}
+          <DialogHeader className="sr-only">
+            <DialogTitle>Preview Bukti Transaksi</DialogTitle>
+          </DialogHeader>
 
-            {/* Tombol Close Custom di pojok kanan atas */}
-            <button 
-                onClick={() => setViewImage(null)}
-                className="absolute top-4 right-4 z-50 p-2 bg-white/50 hover:bg-black/80 rounded-full text-white/80 hover:text-white transition-colors"
+          {/* Tombol Close Custom di pojok kanan atas */}
+          <button
+            onClick={() => setViewImage(null)}
+            className="absolute top-4 right-4 z-50 p-2 bg-white/50 hover:bg-black/80 rounded-full text-white/80 hover:text-white transition-colors"
+          >
+            {/* <X size={24} /> */}
+          </button>
+
+          {/* Area Gambar */}
+          <div className="flex-1 w-full h-full relative flex items-center justify-center p-4 bg-white/95 overflow-hidden">
+            {viewImage ? (
+              <img
+                src={`http://localhost:5000${viewImage}`}
+                alt="Bukti Full"
+                className="w-auto h-auto max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              />
+            ) : (
+              // Loading State
+              <div className="flex flex-col items-center text-white/50">
+                <Loader2 className="h-10 w-10 animate-spin mb-2" />
+                <p>Memuat gambar...</p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer Gelap */}
+          <div className="bg-white/80 p-4 flex justify-end gap-2 backdrop-blur-md border-t border-white/10">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setViewImage(null)}
+              className="text-black hover:bg-white/20 hover:text-white"
             >
-               {/* <X size={24} /> */}
-            </button>
+              Tutup
+            </Button>
+            {viewImage && (
+              <a
+                href={`http://localhost:5000${viewImage}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button size="sm" className=" hover:bg-gray-700 border-none">
+                  Buka Original <ExternalLink size={14} className="ml-2" />
+                </Button>
+              </a>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
-            {/* Area Gambar */}
-            <div className="flex-1 w-full h-full relative flex items-center justify-center p-4 bg-white/95 overflow-hidden">
-                {viewImage ? (
-                    <img src={`http://localhost:5000${viewImage}`} alt="Bukti Full" className="w-auto h-auto max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+      <Dialog open={!!selectedProof} onOpenChange={() => setSelectedProof(null)}>
+        <DialogContent className="max-w-3xl h-[80vh] flex flex-col">
+            <DialogHeader>
+                <DialogTitle>Bukti Pembayaran</DialogTitle>
+            </DialogHeader>
+            
+            <div className="flex-1 relative bg-slate-100 rounded-md flex items-center justify-center overflow-hidden">
+                {selectedProof ? (
+                    <img 
+                        src={selectedProof} 
+                        alt="Bukti Transfer" 
+                        className="w-full h-full object-contain"
                     />
                 ) : (
-                    // Loading State
-                    <div className="flex flex-col items-center text-white/50">
-                        <Loader2 className="h-10 w-10 animate-spin mb-2" />
-                        <p>Memuat gambar...</p>
-                    </div>
-                 )}
+                    <p>Memuat gambar...</p>
+                )}
             </div>
 
-            {/* Footer Gelap */}
-            <div className="bg-white/80 p-4 flex justify-end gap-2 backdrop-blur-md border-t border-white/10">
-                <Button variant="ghost" size="sm" onClick={() => setViewImage(null)} className="text-black hover:bg-white/20 hover:text-white">
+            <div className="flex justify-end">
+                <Button variant="secondary" onClick={() => setSelectedProof(null)}>
                     Tutup
                 </Button>
-                {viewImage && (
-                    <a href={`http://localhost:5000${viewImage}`} target="_blank" rel="noreferrer">
-                        <Button size="sm" className=" hover:bg-gray-700 border-none">
-                            Buka Original <ExternalLink size={14} className="ml-2"/>
-                        </Button>
-                    </a>
-                )}
             </div>
         </DialogContent>
       </Dialog>

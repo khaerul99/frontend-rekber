@@ -46,7 +46,7 @@ export default function UserNav() {
       {/* 1. DROPDOWN MENU */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+          <Button variant="ghost" className="hiddenrelative h-10 w-10 rounded-full">
             <Avatar className="h-10 w-10 border">
               <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.username}`} />
               <AvatarFallback>{user.username?.charAt(0).toUpperCase()}</AvatarFallback>

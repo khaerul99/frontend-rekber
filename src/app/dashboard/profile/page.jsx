@@ -37,6 +37,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { PasswordInput } from "@/components/ui/password-input";
+import PinModal from "@/components/dashboard/PinModal";
 
 export default function ProfilePage() {
   const { user, login } = useUserStore();
@@ -48,10 +49,14 @@ export default function ProfilePage() {
     confirmPassword: "",
   });
   const [passLoading, setPassLoading] = useState(false);
+  const [isPinOpen, setIsPinOpen] = useState(false);
 
   // State Modal
   const [isBankDialogOpen, setIsBankDialogOpen] = useState(false);
   const [is2FAModalOpen, setIs2FAModalOpen] = useState(false);
+
+  const [pin, setPin] = useState(""); // State untuk input PIN
+  const [pinLoading, setPinLoading] = useState(false);
 
   // State Data Bank
   const [bankForm, setBankForm] = useState({
@@ -91,7 +96,7 @@ export default function ProfilePage() {
     fetchProfile();
   }, [login]);
 
-  // --- FUNGSI DATA BANK ---
+  //  FUNGSI DATA BANK ---
   const handleUpdateBank = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -138,7 +143,7 @@ export default function ProfilePage() {
     }
   };
 
-  // A. Minta QR Code ke Backend
+  //  Minta QR Code ke Backend
   const handleSetup2FA = async () => {
     setLoading(true);
     try {
@@ -152,7 +157,7 @@ export default function ProfilePage() {
     }
   };
 
-  // B. Verifikasi Kode OTP
+  //  Verifikasi Kode OTP
   const handleVerify2FA = async () => {
     if (!otpCode) return toast.error("Masukkan kode OTP dulu");
     setLoading(true);
@@ -165,6 +170,47 @@ export default function ProfilePage() {
       window.location.reload();
     } catch (error) {
       toast.error("Kode OTP Salah / Kadaluarsa");
+    } finally {
+      setLoading(false);
+    }
+  };
+  // PIN
+  const handleSavePin = async (e) => {
+    e.preventDefault();
+    
+    if (pin.length !== 6) {
+        return toast.error("PIN harus 6 digit angka!");
+    }
+
+    setPinLoading(true);
+    try {
+      await api.put("/users/pin", { pin });
+      toast.success("PIN Transaksi Berhasil Disimpan!");
+      setPin(""); // Reset input
+      
+      // Refresh data user di store agar status PIN terupdate (jika ada flagnya nanti)
+      // window.location.reload();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gagal menyimpan PIN");
+    } finally {
+      setPinLoading(false);
+    }
+  };
+
+ const handleBankSubmit = (e) => {
+    e.preventDefault();
+    setIsPinOpen(true); // Buka Modal PIN
+  };
+
+  // B. Fungsi Eksekusi (Dijalankan jika PIN Benar)
+  const executeSaveBank = async () => {
+    setLoading(true);
+    try {
+      await api.put("/users/update", bankForm);
+      toast.success("Data Rekening Berhasil Disimpan!");
+      setIsBankDialogOpen(false); // Tutup modal edit
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gagal menyimpan data");
     } finally {
       setLoading(false);
     }
@@ -267,7 +313,41 @@ export default function ProfilePage() {
         </TabsContent>
 
         {/* TAB 2: KEAMANAN (IMPLEMENTASI BARU) */}
-        <TabsContent value="security">
+        <TabsContent value="security" className="flex flex-col gap-4">
+          <div></div>
+          {/* ganti PIN */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                 <Lock className="h-5 w-5 text-blue-600"/>
+                 <CardTitle>PIN Transaksi</CardTitle>
+              </div>
+              <CardDescription>
+                PIN 6 digit digunakan untuk memverifikasi penarikan dana dan perubahan data sensitif.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSavePin} className="flex flex-col md:flex-row gap-4 items-end">
+                  <div className="w-full md:w-1/2 space-y-2">
+                      <Label>Masukkan 6 Digit PIN</Label>
+                      <PasswordInput 
+                        placeholder="• • • • • •"
+                        maxLength={6}
+                        className="text-center text-2xl tracking-[0.5em] font-mono"
+                        value={pin}
+                        onChange={(e) => {
+                            // Hanya boleh angka
+                            const val = e.target.value.replace(/[^0-9]/g, '');
+                            setPin(val);
+                        }}
+                      />
+                  </div>
+                  <Button type="submit" disabled={pinLoading || pin.length < 6}>
+                      {pinLoading ? "Menyimpan..." : "Simpan PIN"}
+                  </Button>
+              </form>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle>Two-Factor Authentication (2FA)</CardTitle>
@@ -401,7 +481,7 @@ export default function ProfilePage() {
               Pastikan data benar agar pencairan lancar.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleUpdateBank} className="space-y-4 py-4">
+          <form onSubmit={handleBankSubmit} className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Nama Bank</Label>
               <Input
@@ -489,6 +569,11 @@ export default function ProfilePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <PinModal 
+          isOpen={isPinOpen} 
+          onClose={() => setIsPinOpen(false)}
+          onSuccess={executeSaveBank} // <--- Jika PIN Valid, jalankan simpan
+      />
     </div>
   );
 }

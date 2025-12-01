@@ -33,6 +33,7 @@ export function useCreateTransaction() {
         return;
       }
 
+      console.log("Data yang dikirim:", form);
       const res = await api.post("/transactions", {
         sellerEmail: form.sellerEmail,
         amount: parseInt(form.amount), 
@@ -47,6 +48,9 @@ export function useCreateTransaction() {
     } finally {
       setLoading(false);
     }
+
+
   };
+  
   return {form, loading, handleAmountChange, handleSubmit, setForm};
 }

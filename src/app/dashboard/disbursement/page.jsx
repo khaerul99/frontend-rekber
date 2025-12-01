@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { useDisbursement } from "@/hooks/dashboard/disbursement/useDisbursement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PinModal from "@/components/dashboard/PinModal";
 
   const TransactionTable = ({ data, type, openUploadModal,copyText }) => (
     <Table>
@@ -69,7 +70,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
                     disabled={!user?.bank_account}
                 >
                     <UploadCloud size={16} className="mr-2" /> 
-                    {type === 'DISBURSE' ? 'Sudah Transfer' : 'Sudah Refund'}
+                    {type === 'DISBURSE' ? 'Sudah Transfer' : 'Refund'}
                 </Button>
               </TableCell>
             </TableRow>
@@ -80,7 +81,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
   );
 
 export default function DisbursementPage() {
-  const { transactions, isModalOpen, refunds, actionType, uploading, openUploadModal, handleSubmit,setIsModalOpen, copyText, setProofFile} = useDisbursement();
+  const { transactions, isModalOpen, refunds, isPinOpen, actionType, uploading, onUploadSubmit,executeDisbursement,openUploadModal, setIsPinOpen, handleSubmit,setIsModalOpen, copyText, setProofFile} = useDisbursement();
 
 
 
@@ -98,7 +99,7 @@ export default function DisbursementPage() {
           <Card>
             <CardHeader><CardTitle>Antrian Pencairan ({transactions.length})</CardTitle></CardHeader>
             <CardContent>
-                {transactions.length === 0 ? <p className="text-center py-8 text-slate-500">Kosong.</p> : <TransactionTable data={transactions} type="DISBURSE" openUploadModal={openUploadModal} />}
+                {transactions.length === 0 ? <p className="text-center py-8 text-slate-500">Kosong.</p> : <TransactionTable data={transactions} type="DISBURSE" openUploadModal={openUploadModal} copyText={copyText} />}
             </CardContent>
           </Card>
         </TabsContent>
@@ -123,10 +124,16 @@ export default function DisbursementPage() {
                 <Input type="file" accept="image/*" onChange={(e) => setProofFile(e.target.files[0])} />
             </div>
             <DialogFooter>
-                <Button onClick={handleSubmit} disabled={uploading}>{uploading ? "Mengupload..." : "Kirim"}</Button>
+                <Button onClick={onUploadSubmit} disabled={uploading}>{uploading ? "Mengupload..." : "Kirim"}</Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <PinModal 
+          isOpen={isPinOpen} 
+          onClose={() => setIsPinOpen(false)}
+          onSuccess={executeDisbursement} 
+      />
     </div>
   );
 }

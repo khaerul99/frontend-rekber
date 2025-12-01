@@ -92,7 +92,7 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 className="text-3xl font-bold">Riwayat Transaksi</h1>
         
@@ -103,11 +103,12 @@ export default function HistoryPage() {
       </div>
 
       {/* --- FILTER SECTION --- */}
+      
       <Card>
         <CardContent className="p-4 flex flex-col md:flex-row gap-4">
           
           {/* Input Search */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 ">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
             <Input
               placeholder="Cari Kode TRX atau Nama User..."
@@ -135,13 +136,15 @@ export default function HistoryPage() {
           </div>
         </CardContent>
       </Card>
+      
 
       {/* --- TABLE SECTION --- */}
+      
       <Card>
         <CardHeader>
           <CardTitle>Daftar Transaksi ({filteredTransactions.length})</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
           {loading ? (
             <div className="text-center py-8 text-slate-500">Memuat data...</div>
           ) : filteredTransactions.length === 0 ? (
@@ -150,8 +153,7 @@ export default function HistoryPage() {
               <p>Tidak ada transaksi yang ditemukan.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
+              <Table className="">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Kode TRX</TableHead>
@@ -169,7 +171,7 @@ export default function HistoryPage() {
                      
                      return (
                       <TableRow key={trx.id}>
-                        <TableCell className="font-mono font-medium">
+                        <TableCell className="font-mono font-medium text-xs sm:text-sm">
                           {trx.trx_code}
                         </TableCell>
                         <TableCell>
@@ -181,28 +183,28 @@ export default function HistoryPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="font-medium">
+                            <span className="font-medium text-sm">
                               {isBuyer ? trx.seller?.username : trx.buyer?.username}
                             </span>
-                            <span className="text-xs text-slate-500">
+                            <span className="text-[10px] text-slate-500">
                               {isBuyer ? trx.seller?.email : trx.buyer?.email}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="font-medium text-sm">
                            Rp {parseInt(trx.amount).toLocaleString("id-ID")}
                         </TableCell>
                         <TableCell>
-                          <Badge className={getStatusColor(trx.status)}>
+                          <Badge className={`${getStatusColor(trx.status)} text-[10px] sm:text-xs border-0 text-white`}>
                             {trx.status.replace(/_/g, " ")}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-slate-500 text-sm">
+                        <TableCell className="text-slate-500 text-xs sm:text-sm whitespace-nowrap">
                           {format(new Date(trx.createdAt), "dd MMM yyyy, HH:mm")}
                         </TableCell>
                         <TableCell className="text-right">
                           <Link href={`/dashboard/transaction/${trx.id}`}>
-                            <Button size="sm" variant="secondary">Lihat Detail</Button>
+                            <Button size="sm" variant="secondary" className="h-8 text-xs">Lihat Detail</Button>
                           </Link>
                         </TableCell>
                       </TableRow>
@@ -210,10 +212,11 @@ export default function HistoryPage() {
                   })}
                 </TableBody>
               </Table>
-            </div>
+  
           )}
         </CardContent>
       </Card>
+      
     </div>
   );
 }

@@ -99,7 +99,6 @@ export default function ValidationPage() {
 
   // 3. Handle Tolak (Invalid)
   const handleReject = async (id) => {
-    if (!confirm("Tolak pembayaran ini? User harus upload ulang.")) return;
     try {
       await api.patch(`/transactions/${id}/reject`);
       toast.warning("Pembayaran Ditolak. Status dikembalikan ke PENDING.");

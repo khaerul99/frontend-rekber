@@ -71,7 +71,7 @@ export default function AdminHistoryPage() {
         <CardHeader>
           <CardTitle>Data Transaksi ({filteredTransactions.length})</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
           {loading ? (
             <div className="text-center py-8">Memuat data...</div>
           ) : filteredTransactions.length === 0 ? (

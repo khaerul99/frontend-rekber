@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Gavel, MessageCircle, Undo2, CheckCircle2 } from "lucide-react";
+import { Gavel, MessageCircle, Undo2, CheckCircle2, Truck } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -126,6 +126,28 @@ export default function DisputePage() {
                                         <AlertDialogCancel>Batal</AlertDialogCancel>
                                         <AlertDialogAction onClick={() => handleResolve(trx.id, 'REFUND_BUYER')}>
                                             Ya, Refund Pembeli
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="secondary" className="gap-1 bg-orange-100 text-orange-700 hover:bg-orange-200 border border-orange-200">
+                                        <Truck size={16} /> Retur
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Izinkan Retur Barang?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Pembeli akan diminta mengirimkan barang kembali ke Penjual. Setelah Penjual menerima, baru dana direfund.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleResolve(trx.id, 'RETURN_GOODS')}>
+                                            Ya, Izinkan Retur
                                         </AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
