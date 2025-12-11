@@ -113,7 +113,9 @@ export default function TransactionDetailPage() {
     fetchData();
 
     // Konek Socket.io
-    socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000", {
+    const socketUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace('/api', '');
+
+    socket = io(socketUrl, {
       transports: ["websocket", "polling"], 
       withCredentials: true
     }); 
