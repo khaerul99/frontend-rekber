@@ -18,7 +18,8 @@ import {
   Banknote,
   ExternalLink,
   Star,
-  XCircle,  
+  Truck,
+  Copy 
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TableCell } from "@/components/ui/table";
@@ -63,6 +64,9 @@ export default function TransactionDetailPage() {
   const [transaction, setTransaction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adminBanks, setAdminBanks] = useState([]);
+
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [trackingNumber, setTrackingNumber] = useState("");
 
   // State Chat
   const [messages, setMessages] = useState([]);
@@ -188,7 +192,9 @@ export default function TransactionDetailPage() {
   const handleAction = async (actionType) => {
     try {
       if (actionType === "sent") {
-        await api.patch(`/transactions/${id}/sent`);
+        await api.patch(`/transactions/${id}/sent`, { 
+             trackingNumber: trackingNumber 
+         });
         toast.success("Status diubah menjadi DIKIRIM");
       } else if (actionType === "finish") {
         await api.patch(`/transactions/${id}/complete`);
@@ -253,7 +259,6 @@ export default function TransactionDetailPage() {
   const isBuyer = user.email === transaction.buyer?.email;
   const isSeller = user.email === transaction.seller?.email;
 
-  const proofImg = transaction.proofs?.find(p => p.type === 'payment_proof')?.imageUrl;
 
 
   return (
@@ -483,19 +488,27 @@ export default function TransactionDetailPage() {
               </p>
             )}
 
-            {transaction.status === "VERIFYING" && isSeller && (
+            {transaction.status === "VERIFYING" &&  (
               <p className="text-sm text-slate-600">
                 Menunggu verifikasi admin
               </p>
             )}
 
-            {transaction.status === "VERIFYING" && (
+
+            {transaction.status === "PROCESSED" && isBuyer && (
               <p className="text-sm text-slate-600">
-                Menunggu verifikasi admin
+                Menunggu penjual mengirim barang
               </p>
             )}
 
-            {/* 3. JIKA STATUS PROCESSED (Sudah Valid) & USER = PENJUAL */}
+
+            {transaction.status === "DISPUTED" && (
+              <p className="text-sm text-slate-600">
+                Menunggu keputusan admin
+              </p>
+            )}
+
+            
             {transaction.status === "PROCESSED" && isSeller && (
               <div className="space-y-3">
                 <p className="text-sm font-medium text-green-600">
@@ -504,30 +517,72 @@ export default function TransactionDetailPage() {
                 <p className="text-sm">
                   Silakan kirim barang/akun ke pembeli, lalu konfirmasi.
                 </p>
-                <Button
-                  onClick={() => handleAction("sent")}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Konfirmasi Barang Dikirim
-                </Button>
+               <Dialog open={isSendModalOpen} onOpenChange={setIsSendModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="w-full bg-green-600 hover:bg-green-700">
+                                Konfirmasi Barang Dikirim
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Konfirmasi Pengiriman</DialogTitle>
+                                <DialogDescription>
+                                    Masukkan nomor resi atau catatan pengiriman (Opsional).
+                                </DialogDescription>
+                            </DialogHeader>
+                            
+                            <div className="py-2">
+                                <Label className="mb-2 block">Info Pengiriman / Resi</Label>
+                                <Input 
+                                    placeholder="Contoh: JNE 1234567890 atau 'Akun dikirim via chat'" 
+                                    value={trackingNumber}
+                                    onChange={(e) => setTrackingNumber(e.target.value)}
+                                />
+                            </div>
+
+                            <DialogFooter>
+                                <Button variant="ghost" onClick={() => setIsSendModalOpen(false)}>Batal</Button>
+                                <Button onClick={() => handleAction('sent')}>
+                                    Kirim Konfirmasi
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
               </div>
             )}
 
-            {/* 4. JIKA STATUS DIKIRIM */}
+           
             {transaction.status === "SENT" && (
               <div className="space-y-4">
                 {/* TAMPILAN KHUSUS PEMBELI */}
                 {isBuyer ? (
                   <>
-                    <div className="bg-green-50 p-3 rounded-md border border-green-200 text-sm text-green-800">
-                      <p className="font-semibold">
-                        Barang sedang dikirim / sudah sampai.
-                      </p>
-                      <p className="text-xs mt-1">
-                        Cek barang dengan teliti. Jika sesuai, klik tombol di
-                        bawah.
-                      </p>
+                   <div className="bg-green-50 p-4 rounded-md border border-green-200 text-sm text-green-800 space-y-2">
+                <div className="flex items-center gap-2 font-bold text-lg">
+                    <Truck size={20} /> Barang Dikirim
+                </div>
+                <p>Penjual telah mengonfirmasi pengiriman barang.</p>
+                
+               
+               <div className="flex items-center justify-between mt-1">
+                        <p className="text-base font-mono font-medium">
+                            {transaction.resiString || "Tidak ada resi"}
+                        </p>
+                        
+                        {/* Tombol Copy Resi (Opsional) */}
+                        {transaction.resiString && (
+                             <Button 
+                                variant="ghost" size="icon" className="h-6 w-6"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(transaction.resiString);
+                                    toast.success("Resi disalin");
+                                }}
+                             >
+                                <Copy size={14} />
+                             </Button>
+                        )}
                     </div>
+            </div>
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -625,7 +680,7 @@ export default function TransactionDetailPage() {
               </div>
             )}
 
-            {/* 5. JIKA STATUS COMPLETED (Barang Diterima, Menunggu Admin Cairkan) */}
+            
             {transaction.status === "COMPLETED" && (
               <div className="bg-green-50 p-4 rounded-lg border border-green-200 text-center space-y-2">
                 <div className="flex justify-center text-green-600">
@@ -641,7 +696,7 @@ export default function TransactionDetailPage() {
               </div>
             )}
 
-            {/* 6. JIKA STATUS DISBURSED (SUDAH CAIR) */}
+           
             {transaction.status === "DISBURSED" && (
               <div className="bg-green-50 p-4 rounded-lg border border-green-200 text-center space-y-3">
                 <div className="flex justify-center text-green-600">
@@ -812,7 +867,6 @@ export default function TransactionDetailPage() {
                  </div>
               )}
 
-            {/* RETURN_PROCESS (Menunggu Pembeli Kirim) */}
             {transaction.status === "REFUNDED" &&  (
               <div className="bg-slate-100 p-4 rounded-lg border border-slate-300 text-center space-y-3">
                 <div className="flex justify-center text-slate-600">
@@ -842,6 +896,9 @@ export default function TransactionDetailPage() {
                     )}
               </div>
             )}
+
+          
+           
 
 
             {/* DEFAULT */}

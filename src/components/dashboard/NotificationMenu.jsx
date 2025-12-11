@@ -25,7 +25,7 @@ export default function NotificationMenu() {
       try {
         const res = await api.get("/notifications");
         setNotifications(res.data);
-        // Hitung yang belum dibaca
+        
         const count = res.data.filter(n => !n.isRead).length;
         setUnreadCount(count);
       } catch (error) {

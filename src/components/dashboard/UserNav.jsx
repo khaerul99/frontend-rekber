@@ -36,7 +36,7 @@ export default function UserNav() {
   const handleLogout = () => {
     logout();
     localStorage.removeItem("token");
-    router.push("/login");
+    router.push("/auth/login");
   };
 
   if (!user) return null;

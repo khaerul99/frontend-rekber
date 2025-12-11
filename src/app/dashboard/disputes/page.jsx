@@ -37,7 +37,7 @@ export default function DisputePage() {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => {SS
     fetchDisputes();
   }, []);
 
