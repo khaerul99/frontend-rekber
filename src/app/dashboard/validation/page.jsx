@@ -186,7 +186,7 @@ export default function ValidationPage() {
                             variant="outline"
                             onClick={() =>
                               setSelectedProof(
-                                `http://localhost:5000${proofImg}`
+                                process.env.NEXT_PUBLIC_API_URL.proofImg
                               )
                             }
                           >
