@@ -59,6 +59,7 @@ let socket;
 export default function TransactionDetailPage() {
   const { id } = useParams(); // Ambil ID dari URL
   const { user } = useUserStore();
+  const socketRef = useRef();
 
   const [selectedProof, setSelectedProof] = useState(null);
   const [transaction, setTransaction] = useState(null);
@@ -113,21 +114,21 @@ export default function TransactionDetailPage() {
     fetchData();
 
     // Konek Socket.io
-    const socketUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace('/api', '');
+   const socketUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace('/api', '');
 
-    socket = io(socketUrl, {
-      transports: ["websocket", "polling"], 
+    socketRef.current = io(socketUrl, {
+      transports: ["websocket", "polling"],
       withCredentials: true
-    }); 
-    socket.emit("join_transaction", id); 
+    });
 
-    // Dengar Pesan Masuk
-    socket.on("receive_message", (msg) => {
+    socketRef.current.emit("join_transaction", id);
+
+    socketRef.current.on("receive_message", (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
 
     return () => {
-      socket.disconnect();
+      socketRef.current.disconnect();
     };
   }, [id]);
 
@@ -150,7 +151,7 @@ export default function TransactionDetailPage() {
     };
 
     // 1. Kirim ke Backend via Socket
-    socket.emit("send_message", msgData);
+    socketRef.current.emit.emit("send_message", msgData);
 
     setNewMessage("");
   };
