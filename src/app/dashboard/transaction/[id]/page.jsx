@@ -151,7 +151,7 @@ export default function TransactionDetailPage() {
     };
 
     // 1. Kirim ke Backend via Socket
-    socketRef.current.emit.emit("send_message", msgData);
+    socketRef.current.emit("send_message", msgData);
 
     setNewMessage("");
   };
