@@ -223,7 +223,7 @@ export default function DashboardPage() {
                   <CardTitle className="text-sm font-medium text-green-700">Total Pemasukan</CardTitle>
                   <ArrowUpRight className="h-4 w-4 text-green-600" />
               </CardHeader>
-              <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
+              <CardContent >
                   <div className="text-2xl font-bold text-green-700">
                       Rp {parseInt(userStats.totalEarned).toLocaleString("id-ID")}
                   </div>
@@ -265,7 +265,7 @@ export default function DashboardPage() {
         <CardHeader>
           <CardTitle>Riwayat Transaksi Terbaru</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
           {loading ? (
             <p className="text-center py-4">Memuat data...</p>
           ) : transactions.length === 0 ? (
