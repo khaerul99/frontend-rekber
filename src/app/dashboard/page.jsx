@@ -223,7 +223,7 @@ export default function DashboardPage() {
                   <CardTitle className="text-sm font-medium text-green-700">Total Pemasukan</CardTitle>
                   <ArrowUpRight className="h-4 w-4 text-green-600" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
                   <div className="text-2xl font-bold text-green-700">
                       Rp {parseInt(userStats.totalEarned).toLocaleString("id-ID")}
                   </div>
