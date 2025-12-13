@@ -100,7 +100,7 @@ export default function UserManagementPage() {
       </div>
 
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
