@@ -17,15 +17,14 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password.length < 8) return toast.error("Password minimal 8 karakter");
-    
-    setLoading(true);
-    try {
-      await api.put(`/auth/reset-password/${token}`, { password });
-
-      if (password !== confirmPassword) {
+         
+    if (password !== confirmPassword) {
         alert("Konfirmasi password tidak cocok!");
         return;
       }
+    setLoading(true);
+    try {
+      await api.put(`/auth/reset-password/${token}`, { password });
 
       toast.success("Password berhasil diubah! Mengalihkan ke Login...");
       setTimeout(() => router.push("/login"), 2000);
