@@ -24,7 +24,10 @@ export default function ResetPasswordPage() {
       }
     setLoading(true);
     try {
-      await api.put(`/auth/reset-password/${token}`, { password });
+      await api.put(`/auth/reset-password/${token}`, { 
+        password: password,
+        confirmPassword: confirmPassword 
+      });
 
       toast.success("Password berhasil diubah! Mengalihkan ke Login...");
       setTimeout(() => router.push("/auth/login"), 2000);
