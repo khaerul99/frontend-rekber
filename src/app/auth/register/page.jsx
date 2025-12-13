@@ -5,11 +5,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { toast } from "sonner"; // Notifikasi
-import api from "@/lib/axios"; // Axios yang sudah kita setting
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"; // Axios yang sudah kita setting
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useRegister } from "@/hooks/auth/useRegister";
 
@@ -46,7 +43,6 @@ export default function RegisterPage() {
                 id="password" name="password" placeholder="******" 
                 onChange={handleChange} required 
               />
-              <p className="text-xs text-slate-500">*Min 8 karakter, 1 Huruf Besar, 1 Simbol</p>
             </div>
             <div className="mt-4">
             <label className="block text-gray-700">Konfirmasi Password</label>
@@ -57,6 +53,7 @@ export default function RegisterPage() {
               required 
             />
           </div>
+              <p className="text-xs text-slate-500">*Min 8 karakter, 1 Huruf Besar, 1 Simbol</p>
             
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Memproses..." : "Daftar Sekarang"}
