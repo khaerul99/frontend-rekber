@@ -70,7 +70,7 @@ export default function DisputePage() {
             Pelajari chat dan bukti sebelum mengambil keputusan.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
           {loading ? (
             <p className="text-center py-8">Memuat data...</p>
           ) : transactions.length === 0 ? (
