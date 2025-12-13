@@ -119,7 +119,7 @@ export default function ValidationPage() {
             Cek mutasi bank Anda sebelum menekan tombol Valid.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
           {loading ? (
             <p className="text-center py-4">Memuat data...</p>
           ) : transactions.length === 0 ? (
@@ -186,7 +186,7 @@ export default function ValidationPage() {
                             variant="outline"
                             onClick={() =>
                               setSelectedProof(
-                                `${process.env.NEXT_PUBLIC_API_URL.replace('/api', '')}${proofImg}`
+                                proofImg
                               )
                             }
                           >
