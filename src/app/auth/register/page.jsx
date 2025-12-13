@@ -48,6 +48,15 @@ export default function RegisterPage() {
               />
               <p className="text-xs text-slate-500">*Min 8 karakter, 1 Huruf Besar, 1 Simbol</p>
             </div>
+            <div className="mt-4">
+            <label className="block text-gray-700">Konfirmasi Password</label>
+            <PasswordInput 
+              name="confirmPassword"
+              placeholder="Ulangi Password"
+              onChange={handleChange}
+              required 
+            />
+          </div>
             
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Memproses..." : "Daftar Sekarang"}

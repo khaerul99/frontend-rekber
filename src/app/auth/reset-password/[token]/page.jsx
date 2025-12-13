@@ -11,6 +11,7 @@ export default function ResetPasswordPage() {
   const { token } = useParams(); // Ambil token dari URL
   const router = useRouter();
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -20,6 +21,12 @@ export default function ResetPasswordPage() {
     setLoading(true);
     try {
       await api.put(`/auth/reset-password/${token}`, { password });
+
+      if (password !== confirmPassword) {
+        alert("Konfirmasi password tidak cocok!");
+        return;
+      }
+
       toast.success("Password berhasil diubah! Mengalihkan ke Login...");
       setTimeout(() => router.push("/login"), 2000);
     } catch (error) {
@@ -43,6 +50,13 @@ export default function ResetPasswordPage() {
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
             />
+                
+            <PasswordInput 
+            placeholder="Konfirmasi Password Baru"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required 
+          />
             <Button className="w-full bg-green-600 hover:bg-green-700" disabled={loading}>
                 {loading ? "Menyimpan..." : "Simpan Password Baru"}
             </Button>

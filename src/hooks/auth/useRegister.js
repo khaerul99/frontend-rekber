@@ -13,6 +13,7 @@ export function useRegister() {
     username: "",
     email: "",
     password: "",
+    confirmPassword: ''
   });
 
   // Handle Input Change
@@ -31,8 +32,15 @@ export function useRegister() {
     try {
       // Panggil API Backend
       await api.post("/auth/register",  form);
+
+      if (formData.password !== formData.confirmPassword) {
+        alert("Password tidak sama!"); 
+        return;
+      }
       
       toast.success("Registrasi Berhasil! Silakan Login.");
+
+
       
       // Arahkan ke halaman login (sesuaikan path-nya)
       // Biasanya /login, tapi sesuaikan jika kamu pakai /auth/login
