@@ -98,7 +98,7 @@ export default function DisbursementPage() {
         <TabsContent value="disburse">
           <Card>
             <CardHeader><CardTitle>Antrian Pencairan ({transactions.length})</CardTitle></CardHeader>
-            <CardContent>
+            <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
                 {transactions.length === 0 ? <p className="text-center py-8 text-slate-500">Kosong.</p> : <TransactionTable data={transactions} type="DISBURSE" openUploadModal={openUploadModal} copyText={copyText} />}
             </CardContent>
           </Card>
@@ -107,7 +107,7 @@ export default function DisbursementPage() {
         <TabsContent value="refund">
           <Card>
             <CardHeader><CardTitle>Antrian Refund ({refunds.length})</CardTitle></CardHeader>
-            <CardContent>
+            <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
                 {refunds.length === 0 ? <p className="text-center py-8 text-slate-500">Tidak ada refund.</p> : <TransactionTable data={refunds} type="REFUND"  openUploadModal={openUploadModal} copyText={copyText}/>}
             </CardContent>
           </Card>
