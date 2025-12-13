@@ -29,23 +29,22 @@ export function useRegister() {
     e.preventDefault();
     setLoading(true);
 
+
+   if (form.password !== form.confirmPassword) {
+      toast.error("Password dan Konfirmasi Password tidak cocok!");
+      setLoading(false);
+      return; 
+    }
+
     try {
       // Panggil API Backend
       await api.post("/auth/register",  form);
 
-      if (formData.password !== formData.confirmPassword) {
-        alert("Password tidak sama!"); 
-        return;
-      }
-      
+    
       toast.success("Registrasi Berhasil! Silakan Login.");
 
 
-      
-      // Arahkan ke halaman login (sesuaikan path-nya)
-      // Biasanya /login, tapi sesuaikan jika kamu pakai /auth/login
-      router.push("/auth/login"); 
-      
+      router.push("/auth/login");   
     } catch (error) {
       const errMsg = error.response?.data?.message || "Terjadi kesalahan";
       toast.error(errMsg);
