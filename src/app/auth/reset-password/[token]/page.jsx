@@ -27,7 +27,7 @@ export default function ResetPasswordPage() {
       await api.put(`/auth/reset-password/${token}`, { password });
 
       toast.success("Password berhasil diubah! Mengalihkan ke Login...");
-      setTimeout(() => router.push("/login"), 2000);
+      setTimeout(() => router.push("/auth/login"), 2000);
     } catch (error) {
       toast.error(error.response?.data?.message || "Link kadaluarsa atau tidak valid");
     } finally {
