@@ -17,18 +17,17 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password.length < 8) return toast.error("Password minimal 8 karakter");
-    
+         
+    if (password !== confirmPassword) {
+        alert("Konfirmasi password tidak cocok!");
+        return;
+      }
     setLoading(true);
     try {
       await api.put(`/auth/reset-password/${token}`, { password });
 
-      if (password !== confirmPassword) {
-        alert("Konfirmasi password tidak cocok!");
-        return;
-      }
-
       toast.success("Password berhasil diubah! Mengalihkan ke Login...");
-      setTimeout(() => router.push("/login"), 2000);
+      setTimeout(() => router.push("/auth/login"), 2000);
     } catch (error) {
       toast.error(error.response?.data?.message || "Link kadaluarsa atau tidak valid");
     } finally {
