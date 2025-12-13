@@ -195,11 +195,15 @@ export default function SettingsPage() {
         <TabsContent value="fee">
           <Card>
             <CardHeader><CardTitle>Biaya Admin</CardTitle></CardHeader>
+            <div className="p-6 border-b bg-slate-50">
+                <h2>Fee saat ini</h2>
+                <p className="text-3xl font-bold text-green-600"> {fee} %</p>
+            </div>
             <CardContent>
                 <form onSubmit={handleSaveFee} className="space-y-4">
                     <div className="space-y-2">
-                        <Label>Nominal Fee (Rp)</Label>
-                        <Input type="number" value={fee} onChange={(e) => setFee(e.target.value)} />
+                        <Label>Persentase Fee</Label>
+                        <Input type="number" value={fee} step="0.01" placeholder="Masukan persentase (contoh: 0.5)" onChange={(e) => setFee(e.target.value)} />
                     </div>
                     <Button disabled={loading}><Save className="mr-2 h-4 w-4"/> Simpan Fee</Button>
                 </form>

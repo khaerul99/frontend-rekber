@@ -22,6 +22,8 @@ export default function NotificationMenu() {
  
   useEffect(() => {
     const fetchNotifications = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
       try {
         const res = await api.get("/notifications");
         setNotifications(res.data);
