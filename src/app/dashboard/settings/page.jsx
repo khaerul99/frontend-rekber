@@ -21,6 +21,7 @@ export default function SettingsPage() {
     // --- STATE KEAMANAN (BARU) ---
     const [passForm, setPassForm] = useState({ oldPass: "", newPass: "", confirmPass: "" });
     const [pin, setPin] = useState("");
+    const [pinForm, setPinForm] = useState({ pin: "", password: "" });
 
     
     // Data State
@@ -171,6 +172,20 @@ export default function SettingsPage() {
         }
     };
 
+    const handleSavePin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  try {
+    // Kirim PIN + Password
+    await api.put("/users/pin", pinForm); // Sesuaikan endpoint backendmu
+    toast.success("PIN Berhasil Disimpan");
+    setPinForm({ pin: "", password: "" });
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Gagal");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   return (
@@ -267,29 +282,50 @@ export default function SettingsPage() {
         <TabsContent value="security" className="space-y-6">
             
             {/* 1. PIN TRANSAKSI */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Lock className="w-5 h-5 text-blue-600"/> PIN Transaksi
-                    </CardTitle>
-                    <CardDescription>Digunakan untuk verifikasi saat pencairan dana.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleUpdatePin} className="flex gap-4 items-end">
+           <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Lock className="w-5 h-5 text-blue-600"/> PIN Transaksi
+                </CardTitle>
+                <CardDescription>Masukkan password akun untuk mengatur ulang PIN.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <form onSubmit={handleSavePin} className="space-y-4">
+                    
+                    {/* 1. Input PIN Baru */}
+                    <div className="space-y-2">
+                        <Label>PIN Baru (6 Digit)</Label>
+                        <Input 
+                            type="password" 
+                            placeholder="******" 
+                            maxLength={6}
+                            value={pinForm.pin}
+                            onChange={(e) => {
+                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                setPinForm({...pinForm, pin: val});
+                            }}
+                        />
+                    </div>
+
+                    {/* 2. Input Password Login (Satu baris dengan tombol biar rapi) */}
+                    <div className="flex gap-4 items-end">
                         <div className="space-y-2 flex-1">
-                            <Label>PIN 6 Digit</Label>
+                            <Label>Konfirmasi Password Login</Label>
                             <Input 
                                 type="password" 
-                                placeholder="******" 
-                                maxLength={6}
-                                value={pin}
-                                onChange={(e) => setPin(e.target.value)}
+                                placeholder="Masukkan password login Anda..." 
+                                value={pinForm.password}
+                                onChange={(e) => setPinForm({...pinForm, password: e.target.value})}
                             />
                         </div>
-                        <Button type="submit" disabled={loading}>Simpan PIN</Button>
-                    </form>
-                </CardContent>
-            </Card>
+                        <Button type="submit" disabled={loading || pinForm.pin.length !== 6}>
+                            Simpan PIN
+                        </Button>
+                    </div>
+
+                </form>
+            </CardContent>
+        </Card>
 
             {/* 2. GANTI PASSWORD */}
             <Card>
