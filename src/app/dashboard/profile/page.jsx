@@ -150,6 +150,8 @@ export default function ProfilePage() {
   if (isFetching)
     return <div className="p-8 text-center">Memuat Profil...</div>;
 
+  const defaultTab = user.role === "ADMIN" ? "security" : "bank";
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold">Pengaturan Profil</h1>
@@ -179,13 +181,13 @@ export default function ProfilePage() {
         </div>
       </Card>
 
-      <Tabs defaultValue="bank" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         {user.role === 'ADMIN' ?  
         <TabsList className="w-full">
           <TabsTrigger value="security">Autentication</TabsTrigger> 
         </TabsList>
         :
-        <TabsList className="grid w-auto grid-cols-1">
+        <TabsList className="grid w-auto grid-cols-2">
           <TabsTrigger value="bank">Data Rekening</TabsTrigger>
           <TabsTrigger value="security">Autentication</TabsTrigger> 
         </TabsList>
@@ -371,7 +373,8 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </TabsContent>
-      </> }
+        </>
+       }
       </Tabs>
 
       {/* --- MODAL EDIT BANK --- */}
