@@ -177,7 +177,8 @@ export default function SettingsPage() {
                       <div className="grid grid-cols-2 gap-8 w-fit">
                           <div>
                               <span className="text-xs text-slate-500 block uppercase">Nomor Rekening</span>
-                              <span className="font-mono font-medium text-slate-700">{bank.bankNumber}</span>
+                              <span className="font-mono font-medium text-slate-700">{bankNumber}
+                                </span>
                           </div>
                           <div>
                               <span className="text-xs text-slate-500 block uppercase">Atas Nama Pemilik</span>

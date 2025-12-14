@@ -59,11 +59,7 @@ export default function ProfilePage() {
   const [pinLoading, setPinLoading] = useState(false);
 
   // State Data Bank
-  const [bankForm, setBankForm] = useState({
-    bank_name: "",
-    bank_account: "",
-    bank_holder: "",
-  });
+  const [bank, setBank] = useState("")
 
   // State Data 2FA
   const [qrCodeUrl, setQrCodeUrl] = useState("");
@@ -76,7 +72,7 @@ export default function ProfilePage() {
         const res = await api.get("/users/me");
         const userData = res.data;
 
-        setBankForm({
+        setBank({
           bank_name: userData.bank_name || "",
           bank_account: userData.bank_account || "",
           bank_holder: userData.bank_holder || "",
@@ -97,19 +93,19 @@ export default function ProfilePage() {
   }, [login]);
 
   //  FUNGSI DATA BANK ---
-  const handleUpdateBank = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await api.put("/users/update", bankForm);
-      toast.success("Data Rekening Berhasil Disimpan!");
-      setIsBankDialogOpen(false);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal menyimpan data");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const handleUpdateBank = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   try {
+  //     await api.put("/users/update", bankForm);
+  //     toast.success("Data Rekening Berhasil Disimpan!");
+  //     setIsBankDialogOpen(false);
+  //   } catch (error) {
+  //     toast.error(error.response?.data?.message || "Gagal menyimpan data");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -279,7 +275,7 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-slate-400" />
                     <p className="font-semibold text-lg">
-                      {bankForm.bank_name || (
+                      {bank.bank_name || (
                         <span className="text-slate-400 italic text-sm">
                           Belum diatur
                         </span>
@@ -292,7 +288,7 @@ export default function ProfilePage() {
                     Nomor Rekening
                   </p>
                   <p className="font-mono text-lg tracking-wide">
-                    {bankForm.bank_account || (
+                    {bank.bank_account || (
                       <span className="text-slate-400 italic text-sm">-</span>
                     )}
                   </p>
@@ -302,7 +298,7 @@ export default function ProfilePage() {
                     Atas Nama Pemilik
                   </p>
                   <p className="font-semibold text-lg">
-                    {bankForm.bank_holder || (
+                    {bank.bank_holder || (
                       <span className="text-slate-400 italic text-sm">-</span>
                     )}
                   </p>
@@ -485,9 +481,9 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <Label>Nama Bank</Label>
               <Input
-                value={bankForm.bank_name}
+                value={bank.bank_name}
                 onChange={(e) =>
-                  setBankForm({ ...bankForm, bank_name: e.target.value })
+                  setBank({ ...bank, bank_name: e.target.value })
                 }
                 placeholder="BCA"
               />
@@ -496,9 +492,9 @@ export default function ProfilePage() {
               <Label>Nomor Rekening</Label>
               <Input
                 type="number"
-                value={bankForm.bank_account}
+                value={bank.bank_account}
                 onChange={(e) =>
-                  setBankForm({ ...bankForm, bank_account: e.target.value })
+                  setBank({ ...bank, bank_account: e.target.value })
                 }
                 placeholder="1234567890"
               />
@@ -506,9 +502,9 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <Label>Atas Nama</Label>
               <Input
-                value={bankForm.bank_holder}
+                value={bank.bank_holder}
                 onChange={(e) =>
-                  setBankForm({ ...bankForm, bank_holder: e.target.value })
+                  setBank({ ...bank, bank_holder: e.target.value })
                 }
                 placeholder="Nama Pemilik"
               />

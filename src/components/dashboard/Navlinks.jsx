@@ -52,18 +52,23 @@ export default function NavLinks({ onNavigate }) {
   } else {
     // --- MENU MEMBER BIASA ---
     menuGroups = [
+       {
+        heading: "Overview",
+        items: [
+          { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+        ]
+      },
       {
         heading: "Menu Utama",
         items: [
-          { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-          { name: "Buat Transaksi", href: "/dashboard/create", icon: PlusCircle },
+          { name: "Buat Transaksi", href: "/dashboard/create-transaction", icon: PlusCircle },
           { name: "Riwayat Saya", href: "/dashboard/history", icon: History },
         ]
       },
       {
         heading: "Lainnya",
         items: [
-          { name: "Profil Akun", href: "/dashboard/profile", icon: User },
+          // { name: "Profil Akun", href: "/dashboard/profile", icon: User },
           { name: "Bantuan", href: "/dashboard/help", icon: LifeBuoy },
         ]
       }
