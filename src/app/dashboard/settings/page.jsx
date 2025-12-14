@@ -187,6 +187,16 @@ export default function SettingsPage() {
   }
 };
 
+if (!user) {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  );
+}
+
+// 👇 2. TENTUKAN TAB AWAL SESUAI ROLE
+const defaultTab = user.role === "ADMIN" ? "bank" : "security";
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -195,8 +205,8 @@ export default function SettingsPage() {
         }
 
     
-      <Tabs defaultValue="bank" className="w-full">
-         {user.role === 'ADMIN' ?
+      <Tabs defaultValue={defaultTab} className="w-full">
+         {user?.role === 'ADMIN' ?
         <TabsList className="grid w-auto grid-cols-3">  
             <TabsTrigger value="bank" className="gap-2"><Landmark size={16}/> Rekening Bank</TabsTrigger>
             <TabsTrigger value="fee" className="gap-2"><Coins size={16}/> Biaya Layanan</TabsTrigger>
@@ -206,9 +216,12 @@ export default function SettingsPage() {
         <TabsList className="grid w-auto grid-cols-1">
             <TabsTrigger value="security" className="gap-2"><ShieldCheck size={16}/> Keamanan Akun</TabsTrigger> 
         </TabsList>
-            }
+        }
+    
 
-        {/* --- TAB 1: LIST BANK --- */}
+        {user?.role === 'ADMIN' && 
+        <>
+         {/* --- TAB 1: LIST BANK --- */}
         <TabsContent value="bank" className="space-y-4">
           <div className="flex justify-end">
               <Button onClick={() => openModal(null)} size="sm" className="gap-2">
@@ -281,9 +294,10 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+        </>
+        }
 
-        <TabsContent value="security" className="space-y-6">
-            
+        <TabsContent value="security" className="space-y-6"> 
             {/* 1. PIN TRANSAKSI */}
            <Card>
             <CardHeader>
@@ -373,6 +387,8 @@ export default function SettingsPage() {
                 </CardContent>
             </Card>
         </TabsContent>
+        
+          
       </Tabs>
 
       {/* --- MODAL FORM BANK (Tambah / Edit) --- */}
