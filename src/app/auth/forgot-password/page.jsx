@@ -5,23 +5,11 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useForgotPassword } from "@/hooks/auth/useForgotPassword";
+
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await api.post("/auth/forgot-password", { email });
-      toast.success("Silakan cek email Anda (Inbox/Spam)!");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal mengirim email");
-    } finally {
-      setLoading(false);
-    }
-  };
+ const {email, loading, setEmail, handleSubmit} = useForgotPassword();
 
   return (
     <div className="flex h-screen items-center justify-center bg-slate-50">

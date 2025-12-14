@@ -73,14 +73,14 @@ export default function UserNav() {
               </DropdownMenuItem>
             </Link>
             
-            {user.role === 'ADMIN' && (
+            {/* {user.role === 'ADMIN' && ( */}
                <Link href="/dashboard/settings">
                   <DropdownMenuItem className="cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Pengaturan</span>
                   </DropdownMenuItem>
                </Link>
-            )}
+            {/* )} */}
           </DropdownMenuGroup>
           
           <DropdownMenuSeparator />

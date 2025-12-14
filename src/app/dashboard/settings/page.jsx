@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
-import { Landmark, Coins, Save, Plus, Pencil, Trash2, CreditCard } from "lucide-react";
+import { Landmark, Coins, Save, Plus, Pencil, Trash2, CreditCard, ShieldCheck, Lock, KeyRound, Smartphone } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,131 +11,198 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { PasswordInput } from "@/components/ui/password-input";
+import useUserStore from "@/store/useUserStore";
 
 export default function SettingsPage() {
-  const [loading, setLoading] = useState(false);
-  
-  // Data State
-  const [banks, setBanks] = useState([]);
-  const [fee, setFee] = useState("");
+    const { user } = useUserStore();
+    const [loading, setLoading] = useState(false);
 
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBank, setEditingBank] = useState(null); // Jika null = Mode Tambah, Jika object = Mode Edit
+    // --- STATE KEAMANAN (BARU) ---
+    const [passForm, setPassForm] = useState({ oldPass: "", newPass: "", confirmPass: "" });
+    const [pin, setPin] = useState("");
+    const [pinForm, setPinForm] = useState({ pin: "", password: "" });
 
-  // Form State untuk Bank
-  const [bankForm, setBankForm] = useState({ bankName: "", bankNumber: "", bankHolder: "" });
-  const [logoFile, setLogoFile] = useState(null);
-  const [previewLogo, setPreviewLogo] = useState(null);
-
-  // 1. Load Data
-  const fetchData = async () => {
-    try {
-      // Ambil List Bank
-      const resBanks = await api.get("/settings/admin-banks");
-      setBanks(resBanks.data);
-
-      // Ambil Fee (Dari endpoint setting lama)
-      const resFee = await api.get("/settings/payment");
-      setFee(resFee.data.admin_fee || "0");
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // 2. Handle Buka Modal (Tambah/Edit)
-  const openModal = (bank = null) => {
-    setEditingBank(bank);
-    if (bank) {
-        // Mode Edit: Isi form dengan data bank
-        setBankForm({
-            bankName: bank.bankName,
-            bankNumber: bank.bankNumber,
-            bankHolder: bank.bankHolder
-        });
-        setPreviewLogo(bank.logoUrl ? `http://localhost:5000${bank.logoUrl}` : null);
-    } else {
-        // Mode Tambah: Kosongkan form
-        setBankForm({ bankName: "", bankNumber: "", bankHolder: "" });
-        setPreviewLogo(null);
-    }
-    setLogoFile(null);
-    setIsModalOpen(true);
-  };
-
-  // 3. Handle Simpan Bank (Add/Update)
-  const handleSaveBank = async (e) => {
-    e.preventDefault();
-    setLoading(true);
     
-    const formData = new FormData();
-    formData.append("bankName", bankForm.bankName);
-    formData.append("bankNumber", bankForm.bankNumber);
-    formData.append("bankHolder", bankForm.bankHolder);
-    if (logoFile) formData.append("logo", logoFile);
+    // Data State
+    const [banks, setBanks] = useState([]);
+    const [fee, setFee] = useState("");
 
-    try {
-        if (editingBank) {
-            // Update
-            await api.put(`/settings/admin-banks/${editingBank.id}`, formData);
-            toast.success("Bank berhasil diupdate");
-        } else {
-            // Create
-            await api.post("/settings/admin-banks", formData);
-            toast.success("Bank berhasil ditambahkan");
+    // Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingBank, setEditingBank] = useState(null); // Jika null = Mode Tambah, Jika object = Mode Edit
+
+    // Form State untuk Bank
+    const [bankForm, setBankForm] = useState({ bankName: "", bankNumber: "", bankHolder: "" });
+    const [logoFile, setLogoFile] = useState(null);
+    const [previewLogo, setPreviewLogo] = useState(null);
+
+    // 1. Load Data
+    const fetchData = async () => {
+        try {
+        // Ambil List Bank
+        const resBanks = await api.get("/settings/admin-banks");
+        setBanks(resBanks.data);
+
+        // Ambil Fee (Dari endpoint setting lama)
+        const resFee = await api.get("/settings/payment");
+        setFee(resFee.data.admin_fee || "0");
+        } catch (error) {
+        console.error(error);
         }
-        setIsModalOpen(false);
-        fetchData(); // Refresh data
-    } catch (error) {
-        toast.error("Gagal menyimpan bank");
-    } finally {
-        setLoading(false);
-    }
-  };
+    };
 
-  // 4. Handle Hapus Bank
-  const handleDeleteBank = async (id) => {
-      if(!confirm("Yakin hapus rekening ini?")) return;
-      try {
-          await api.delete(`/admin-banks/${id}`);
-          toast.success("Bank dihapus");
-          fetchData();
-      } catch (error) {
-          toast.error("Gagal hapus");
-      }
-  };
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-  // 5. Handle Simpan Fee
-  const handleSaveFee = async (e) => {
-      e.preventDefault();
-      setLoading(true);
-      try {
-          // GANTI DARI FORM DATA KE JSON BIASA
-          await api.put("/settings/payment", {
-            admin_fee: fee
-          });
-          
-          toast.success("Fee berhasil diupdate");
-      } catch (error) {
-          toast.error("Gagal update fee");
-          console.error(error);
-      } finally {
-          setLoading(false);
-      }
-  };
+    // 2. Handle Buka Modal (Tambah/Edit)
+    const openModal = (bank = null) => {
+        setEditingBank(bank);
+        if (bank) {
+            // Mode Edit: Isi form dengan data bank
+            setBankForm({
+                bankName: bank.bankName,
+                bankNumber: bank.bankNumber,
+                bankHolder: bank.bankHolder
+            });
+            setPreviewLogo(bank.logoUrl ? `http://localhost:5000${bank.logoUrl}` : null);
+        } else {
+            // Mode Tambah: Kosongkan form
+            setBankForm({ bankName: "", bankNumber: "", bankHolder: "" });
+            setPreviewLogo(null);
+        }
+        setLogoFile(null);
+        setIsModalOpen(true);
+    };
+
+    // 3. Handle Simpan Bank (Add/Update)
+    const handleSaveBank = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        
+        const formData = new FormData();
+        formData.append("bankName", bankForm.bankName);
+        formData.append("bankNumber", bankForm.bankNumber);
+        formData.append("bankHolder", bankForm.bankHolder);
+        if (logoFile) formData.append("logo", logoFile);
+
+        try {
+            if (editingBank) {
+                // Update
+                await api.put(`/settings/admin-banks/${editingBank.id}`, formData);
+                toast.success("Bank berhasil diupdate");
+            } else {
+                // Create
+                await api.post("/settings/admin-banks", formData);
+                toast.success("Bank berhasil ditambahkan");
+            }
+            setIsModalOpen(false);
+            fetchData(); // Refresh data
+        } catch (error) {
+            toast.error("Gagal menyimpan bank");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // 4. Handle Hapus Bank
+    const handleDeleteBank = async (id) => {
+        if(!confirm("Yakin hapus rekening ini?")) return;
+        try {
+            await api.delete(`/admin-banks/${id}`);
+            toast.success("Bank dihapus");
+            fetchData();
+        } catch (error) {
+            toast.error("Gagal hapus");
+        }
+    };
+
+    // 5. Handle Simpan Fee
+    const handleSaveFee = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            // GANTI DARI FORM DATA KE JSON BIASA
+            await api.put("/settings/payment", {
+                admin_fee: fee
+            });
+            
+            toast.success("Fee berhasil diupdate");
+        } catch (error) {
+            toast.error("Gagal update fee");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdatePassword = async (e) => {
+        e.preventDefault();
+        if (passForm.newPass !== passForm.confirmPass) {
+            return toast.error("Konfirmasi password tidak cocok!");
+        }
+        setLoading(true);
+        try {
+            await api.put("/users/change-password", {
+                currentPassword: passForm.oldPass,
+                newPassword: passForm.newPass
+            });
+            toast.success("Password berhasil diubah!");
+            setPassForm({ oldPass: "", newPass: "", confirmPass: "" }); // Reset form
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Gagal ubah password");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // --- NEW: HANDLER UPDATE PIN ---
+    const handleUpdatePin = async (e) => {
+        e.preventDefault();
+        if (pin.length !== 6) return toast.error("PIN harus 6 digit");
+        setLoading(true);
+        try {
+            await api.put("/users/pin", { pin });
+            toast.success("PIN Transaksi berhasil disimpan");
+            setPin("");
+        } catch (error) {
+            toast.error("Gagal simpan PIN");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSavePin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  try {
+    // Kirim PIN + Password
+    await api.put("/users/pin", pinForm); // Sesuaikan endpoint backendmu
+    toast.success("PIN Berhasil Disimpan");
+    setPinForm({ pin: "", password: "" });
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Gagal");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold">Pengaturan Admin</h1>
+        {user.role === 'ADMIN' ?
+      <h1 className="text-3xl font-bold">Pengaturan Admin</h1> :  <h1 className="text-3xl font-bold">Pengaturan Keamanan</h1>
+        }
 
+    
       <Tabs defaultValue="bank" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-          <TabsTrigger value="bank" className="gap-2"><Landmark size={16}/> Rekening Bank</TabsTrigger>
-          <TabsTrigger value="fee" className="gap-2"><Coins size={16}/> Biaya Layanan</TabsTrigger>
+        <TabsList className="grid w-auto grid-cols-3">
+            {user.role === 'ADMIN' ? <>
+            <TabsTrigger value="bank" className="gap-2"><Landmark size={16}/> Rekening Bank</TabsTrigger>
+            <TabsTrigger value="fee" className="gap-2"><Coins size={16}/> Biaya Layanan</TabsTrigger>
+            <TabsTrigger value="security" className="gap-2"><ShieldCheck size={16}/> Keamanan Akun</TabsTrigger>
+            </> :  <TabsTrigger value="security" className="gap-2"><ShieldCheck size={16}/> Keamanan Akun</TabsTrigger>
+            }
         </TabsList>
 
         {/* --- TAB 1: LIST BANK --- */}
@@ -177,7 +244,7 @@ export default function SettingsPage() {
                       <div className="grid grid-cols-2 gap-8 w-fit">
                           <div>
                               <span className="text-xs text-slate-500 block uppercase">Nomor Rekening</span>
-                              <span className="font-mono font-medium text-slate-700">{bankNumber}
+                              <span className="font-mono font-medium text-slate-700">{bank.bankNumber}
                                 </span>
                           </div>
                           <div>
@@ -210,6 +277,98 @@ export default function SettingsPage() {
                 </form>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="security" className="space-y-6">
+            
+            {/* 1. PIN TRANSAKSI */}
+           <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Lock className="w-5 h-5 text-blue-600"/> PIN Transaksi
+                </CardTitle>
+                <CardDescription>Masukkan password akun untuk mengatur ulang PIN.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <form onSubmit={handleSavePin} className="space-y-4">
+                    
+                    {/* 1. Input PIN Baru */}
+                    <div className="space-y-2">
+                        <Label>PIN Baru (6 Digit)</Label>
+                        <Input 
+                            type="password" 
+                            placeholder="******" 
+                            maxLength={6}
+                            value={pinForm.pin}
+                            onChange={(e) => {
+                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                setPinForm({...pinForm, pin: val});
+                            }}
+                        />
+                    </div>
+
+                    {/* 2. Input Password Login (Satu baris dengan tombol biar rapi) */}
+                    <div className="flex gap-4 items-end">
+                        <div className="space-y-2 flex-1">
+                            <Label>Konfirmasi Password Login</Label>
+                            <Input 
+                                type="password" 
+                                placeholder="Masukkan password login Anda..." 
+                                value={pinForm.password}
+                                onChange={(e) => setPinForm({...pinForm, password: e.target.value})}
+                            />
+                        </div>
+                        <Button type="submit" disabled={loading || pinForm.pin.length !== 6}>
+                            Simpan PIN
+                        </Button>
+                    </div>
+
+                </form>
+            </CardContent>
+        </Card>
+
+            {/* 2. GANTI PASSWORD */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <KeyRound className="w-5 h-5 text-blue-600"/> Ganti Password
+                    </CardTitle>
+                    <CardDescription>Gunakan password kuat kombinasi huruf & angka.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleUpdatePassword} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>Password Lama</Label>
+                            <PasswordInput 
+                                placeholder="Masukkan password saat ini"
+                                value={passForm.oldPass}
+                                onChange={(e) => setPassForm({...passForm, oldPass: e.target.value})}
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Password Baru</Label>
+                                <PasswordInput 
+                                    placeholder="Minimal 8 karakter"
+                                    value={passForm.newPass}
+                                    onChange={(e) => setPassForm({...passForm, newPass: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Konfirmasi Password Baru</Label>
+                                <PasswordInput 
+                                    placeholder="Ulangi password baru"
+                                    value={passForm.confirmPass}
+                                    onChange={(e) => setPassForm({...passForm, confirmPass: e.target.value})}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-end">
+                            <Button type="submit" disabled={loading} variant="default">Update Password</Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
         </TabsContent>
       </Tabs>
 
