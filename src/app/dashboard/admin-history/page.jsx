@@ -26,12 +26,14 @@ import {
 } from "@/components/ui/table";
 
 import { useHistoryAdmin } from "@/hooks/dashboard/admin-history/useHistoryAdmin";
+import AdminGuard from "@/components/adminGuard/AdminGuard";
 
 export default function AdminHistoryPage() {
   const {filteredTransactions, loading, search, statusFilter,  setSearch, setStatusFilter, getStatusColor} = useHistoryAdmin();
-  
+
 
   return (
+    <AdminGuard>
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Semua Riwayat Transaksi</h1>
 
@@ -133,5 +135,6 @@ export default function AdminHistoryPage() {
         </CardContent>
       </Card>
     </div>
+    </AdminGuard>
   );
 }
