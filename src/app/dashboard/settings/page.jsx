@@ -196,14 +196,17 @@ export default function SettingsPage() {
 
     
       <Tabs defaultValue="bank" className="w-full">
-        <TabsList className="grid w-auto grid-cols-3">
-            {user.role === 'ADMIN' ? <>
+         {user.role === 'ADMIN' ?
+        <TabsList className="grid w-auto grid-cols-3">  
             <TabsTrigger value="bank" className="gap-2"><Landmark size={16}/> Rekening Bank</TabsTrigger>
             <TabsTrigger value="fee" className="gap-2"><Coins size={16}/> Biaya Layanan</TabsTrigger>
-            <TabsTrigger value="security" className="gap-2"><ShieldCheck size={16}/> Keamanan Akun</TabsTrigger>
-            </> :  <TabsTrigger value="security" className="gap-2"><ShieldCheck size={16}/> Keamanan Akun</TabsTrigger>
-            }
+            <TabsTrigger value="security" className="gap-2"><ShieldCheck size={16}/> Keamanan Akun</TabsTrigger> 
         </TabsList>
+        :
+        <TabsList className="grid w-auto grid-cols-1">
+            <TabsTrigger value="security" className="gap-2"><ShieldCheck size={16}/> Keamanan Akun</TabsTrigger> 
+        </TabsList>
+            }
 
         {/* --- TAB 1: LIST BANK --- */}
         <TabsContent value="bank" className="space-y-4">
