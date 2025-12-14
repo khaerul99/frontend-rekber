@@ -9,7 +9,6 @@ import { Gavel, MessageCircle, Undo2, CheckCircle2, Truck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,12 +20,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import AdminGuard from "@/components/adminGuard/AdminGuard";
+import useUserStore from "@/store/useUserStore";
 
 export default function DisputePage() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useUserStore();
 
   const fetchDisputes = async () => {
+    if (!user || user.role !== "ADMIN") {
+         setLoading(false);
+         return; 
+      }
     try {
       const res = await api.get("/transactions/admin/disputes");
       setTransactions(res.data);
@@ -52,6 +58,7 @@ export default function DisputePage() {
   };
 
   return (
+    <AdminGuard>
     <div className="space-y-6">
       <div className="flex items-center gap-3">
          <div className="p-2 bg-red-100 text-red-700 rounded-lg">
@@ -186,5 +193,6 @@ export default function DisputePage() {
         </CardContent>
       </Card>
     </div>
+    </AdminGuard>
   );
 }

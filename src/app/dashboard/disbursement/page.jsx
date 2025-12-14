@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useDisbursement } from "@/hooks/dashboard/disbursement/useDisbursement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PinModal from "@/components/dashboard/PinModal";
+import AdminGuard from "@/components/adminGuard/AdminGuard";
 
   const TransactionTable = ({ data, type, openUploadModal,copyText }) => (
     <Table>
@@ -86,6 +87,7 @@ export default function DisbursementPage() {
 
 
   return (
+    <AdminGuard>
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Kelola Dana Keluar</h1>
 
@@ -135,5 +137,6 @@ export default function DisbursementPage() {
           onSuccess={executeDisbursement} 
       />
     </div>
+    </AdminGuard>
   );
 }

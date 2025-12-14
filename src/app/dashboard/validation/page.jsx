@@ -40,6 +40,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import AdminGuard from "@/components/adminGuard/AdminGuard";
+import useUserStore from "@/store/useUserStore";
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -63,6 +65,7 @@ const getStatusColor = (status) => {
 };
 
 export default function ValidationPage() {
+  const { user } = useUserStore();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -71,6 +74,10 @@ export default function ValidationPage() {
 
   // 1. Fetch Data
   const fetchVerifying = async () => {
+    if (!user || user.role !== "ADMIN") {
+         setLoading(false);
+         return; 
+      }
     try {
       const res = await api.get("/transactions/admin/verifying");
       console.log("DATA DARI BACKEND:", res.data);
@@ -109,6 +116,7 @@ export default function ValidationPage() {
   };
 
   return (
+    <AdminGuard>
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Validasi Pembayaran</h1>
 
@@ -309,5 +317,6 @@ export default function ValidationPage() {
         </DialogContent>
       </Dialog>
     </div>
+    </AdminGuard>
   );
 }

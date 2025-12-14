@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import api from "@/lib/axios";
-
+import useUserStore from "@/store/useUserStore";
 
 export function useHistoryAdmin() {
+  const { user } = useUserStore();
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,12 @@ export function useHistoryAdmin() {
   // 1. Fetch Data (Endpoint Admin)
   useEffect(() => {
     const fetchData = async () => {
+
+      if (!user || user.role !== "ADMIN") {
+         setLoading(false);
+         return; 
+      }
+
       try {
         const res = await api.get("/transactions/admin/all");
         setTransactions(res.data);
@@ -27,7 +34,7 @@ export function useHistoryAdmin() {
     };
 
     fetchData();
-  }, []);
+  }, [user]);
 
   // 2. Filter Logic
   useEffect(() => {

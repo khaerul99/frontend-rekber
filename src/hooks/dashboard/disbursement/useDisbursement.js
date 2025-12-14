@@ -3,8 +3,10 @@ import React from "react";
 import { useEffect, useState, useRef } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
+import useUserStore from "@/store/useUserStore";
 
 export function useDisbursement() {
+  const { user } = useUserStore();
   const [transactions, setTransactions] = useState([]);
   const [refunds, setRefunds] = useState([]); // State baru untuk refund
   const [loading, setLoading] = useState(true);
@@ -18,6 +20,12 @@ export function useDisbursement() {
   const [isPinOpen, setIsPinOpen] = useState(false);
 
   const fetchData = async () => {
+
+    if (!user || user.role !== "ADMIN") {
+         setLoading(false);
+         return; 
+      }
+
     try {
       // Ambil Data Pencairan
       const resDisburse = await api.get("/transactions/admin/disbursement");
