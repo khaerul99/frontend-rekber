@@ -6,12 +6,9 @@ import api from "@/lib/axios";
 import useUserStore from "@/store/useUserStore";
 import { toast } from "sonner";
 import {
-  User,
   CreditCard,
-  Save,
   Pencil,
   ShieldCheck,
-  Lock,
   Smartphone,
 } from "lucide-react";
 
@@ -36,27 +33,17 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { PasswordInput } from "@/components/ui/password-input";
 import PinModal from "@/components/dashboard/PinModal";
 
 export default function ProfilePage() {
   const { user, login } = useUserStore();
   const [loading, setLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
-  const [passForm, setPassForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [passLoading, setPassLoading] = useState(false);
   const [isPinOpen, setIsPinOpen] = useState(false);
 
   // State Modal
   const [isBankDialogOpen, setIsBankDialogOpen] = useState(false);
   const [is2FAModalOpen, setIs2FAModalOpen] = useState(false);
-
-  const [pin, setPin] = useState(""); // State untuk input PIN
-  const [pinLoading, setPinLoading] = useState(false);
 
   // State Data Bank
   const [bank, setBank] = useState("")
@@ -107,38 +94,6 @@ export default function ProfilePage() {
   //   }
   // };
 
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-
-    // Validasi Frontend
-    if (passForm.newPassword !== passForm.confirmPassword) {
-      return toast.error("Konfirmasi password tidak cocok!");
-    }
-    if (passForm.newPassword.length < 8) {
-      return toast.error("Password minimal 8 karakter");
-    }
-
-    setPassLoading(true);
-    try {
-      await api.put("/users/change-password", {
-        currentPassword: passForm.currentPassword,
-        newPassword: passForm.newPassword,
-      });
-
-      toast.success("Password Berhasil Diubah!");
-      // Reset Form
-      setPassForm({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal mengganti password");
-    } finally {
-      setPassLoading(false);
-    }
-  };
-
   //  Minta QR Code ke Backend
   const handleSetup2FA = async () => {
     setLoading(true);
@@ -170,28 +125,8 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
-  // PIN
-  const handleSavePin = async (e) => {
-    e.preventDefault();
-    
-    if (pin.length !== 6) {
-        return toast.error("PIN harus 6 digit angka!");
-    }
 
-    setPinLoading(true);
-    try {
-      await api.put("/users/pin", { pin });
-      toast.success("PIN Transaksi Berhasil Disimpan!");
-      setPin(""); // Reset input
-      
-      // Refresh data user di store agar status PIN terupdate (jika ada flagnya nanti)
-      // window.location.reload();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal menyimpan PIN");
-    } finally {
-      setPinLoading(false);
-    }
-  };
+ 
 
  const handleBankSubmit = (e) => {
     e.preventDefault();
@@ -245,11 +180,79 @@ export default function ProfilePage() {
       </Card>
 
       <Tabs defaultValue="bank" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-          <TabsTrigger value="bank">Data Rekening</TabsTrigger>
-          <TabsTrigger value="security">Keamanan</TabsTrigger>
+        {user.role === 'ADMIN' ?  
+        <TabsList className="w-full">
+          <TabsTrigger value="security">Autentication</TabsTrigger> 
         </TabsList>
+        :
+        <TabsList className="grid w-auto grid-cols-1">
+          <TabsTrigger value="bank">Data Rekening</TabsTrigger>
+          <TabsTrigger value="security">Autentication</TabsTrigger> 
+        </TabsList>
+        }
 
+      {user.role === 'ADMIN' ? 
+       <TabsContent value="security" className="flex flex-col gap-4">
+        
+          <Card>
+            <CardHeader>
+              <CardTitle>Two-Factor Authentication (2FA)</CardTitle>
+              <CardDescription>
+                Tambahkan lapisan keamanan ekstra menggunakan Google
+                Authenticator.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Status Card */}
+              <div
+                className={`flex items-center justify-between rounded-lg border p-4 ${
+                  user?.twofa_enabled
+                    ? "bg-green-50 border-green-200"
+                    : "bg-slate-50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`p-2 rounded-full ${
+                      user?.twofa_enabled
+                        ? "bg-green-100 text-green-600"
+                        : "bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    <ShieldCheck size={24} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <h3 className="text-base font-medium">Status Keamanan</h3>
+                    <p className="text-sm text-slate-500">
+                      {user?.twofa_enabled
+                        ? "Akun Anda terlindungi dengan 2FA."
+                        : "Akun Anda belum menggunakan 2FA."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Tombol Aksi */}
+                {!user?.twofa_enabled && (
+                  <Button onClick={handleSetup2FA} disabled={loading}>
+                    {loading ? "Loading..." : "Aktifkan Sekarang"}
+                  </Button>
+                )}
+              </div>
+
+              {/* Info Tambahan */}
+              <div className="text-sm text-slate-500 bg-blue-50 p-4 rounded-md border border-blue-100 flex gap-3">
+                <Smartphone className="text-blue-500 shrink-0" size={20} />
+                <p>
+                  Kami menyarankan menggunakan aplikasi{" "}
+                  <strong>Google Authenticator</strong> atau{" "}
+                  <strong>Authy</strong> yang tersedia di Play Store / App
+                  Store.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        : <>
         {/* TAB 1: DATA REKENING */}
         <TabsContent value="bank">
           <Card>
@@ -310,40 +313,6 @@ export default function ProfilePage() {
 
         {/* TAB 2: KEAMANAN (IMPLEMENTASI BARU) */}
         <TabsContent value="security" className="flex flex-col gap-4">
-          <div></div>
-          {/* ganti PIN */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                 <Lock className="h-5 w-5 text-blue-600"/>
-                 <CardTitle>PIN Transaksi</CardTitle>
-              </div>
-              <CardDescription>
-                PIN 6 digit digunakan untuk memverifikasi penarikan dana dan perubahan data sensitif.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSavePin} className="flex flex-col md:flex-row gap-4 items-end">
-                  <div className="w-full md:w-1/2 space-y-2">
-                      <Label>Masukkan 6 Digit PIN</Label>
-                      <PasswordInput 
-                        placeholder="• • • • • •"
-                        maxLength={6}
-                        className="text-center text-2xl tracking-[0.5em] font-mono"
-                        value={pin}
-                        onChange={(e) => {
-                            // Hanya boleh angka
-                            const val = e.target.value.replace(/[^0-9]/g, '');
-                            setPin(val);
-                        }}
-                      />
-                  </div>
-                  <Button type="submit" disabled={pinLoading || pin.length < 6}>
-                      {pinLoading ? "Menyimpan..." : "Simpan PIN"}
-                  </Button>
-              </form>
-            </CardContent>
-          </Card>
           <Card>
             <CardHeader>
               <CardTitle>Two-Factor Authentication (2FA)</CardTitle>
@@ -401,71 +370,8 @@ export default function ProfilePage() {
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Ganti Password</CardTitle>
-              <CardDescription>
-                Gunakan password yang kuat (kombinasi huruf & angka) agar akun
-                tetap aman.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleChangePassword} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Password Lama</Label>
-                  {/* Gunakan PasswordInput */}
-                  <PasswordInput
-                    placeholder="******"
-                    value={passForm.currentPassword}
-                    onChange={(e) =>
-                      setPassForm({
-                        ...passForm,
-                        currentPassword: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Password Baru</Label>
-                    <PasswordInput
-                      placeholder="Minimal 8 karakter"
-                      value={passForm.newPassword}
-                      onChange={(e) =>
-                        setPassForm({
-                          ...passForm,
-                          newPassword: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Konfirmasi Password Baru</Label>
-                    <PasswordInput
-                      placeholder="Ulangi password baru"
-                      value={passForm.confirmPassword}
-                      onChange={(e) =>
-                        setPassForm({
-                          ...passForm,
-                          confirmPassword: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={passLoading}>
-                    {passLoading ? "Memproses..." : "Update Password"}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
         </TabsContent>
+      </> }
       </Tabs>
 
       {/* --- MODAL EDIT BANK --- */}
