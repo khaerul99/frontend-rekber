@@ -31,7 +31,17 @@ export default function NotificationMenu() {
         const count = res.data.filter(n => !n.isRead).length;
         setUnreadCount(count);
       } catch (error) {
-        console.error("Gagal ambil notif");
+
+        if (!navigator.onLine || error.code === "ERR_NETWORK" || error.message === "Network Error") {
+        return; 
+        }
+
+  
+        if (error.response && error.response.status === 401) {
+          return; 
+        }
+
+        // console.error("Gagal ambil notif");
       }
     };
 

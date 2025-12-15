@@ -128,18 +128,23 @@ export default function ProfilePage() {
 
  
 
- const handleBankSubmit = (e) => {
+  const handleBankSubmit = (e) => {
     e.preventDefault();
     setIsPinOpen(true); // Buka Modal PIN
   };
 
-  // B. Fungsi Eksekusi (Dijalankan jika PIN Benar)
-  const executeSaveBank = async () => {
+  const executeSaveBank = async (pinCode) => {
     setLoading(true);
     try {
-      await api.put("/users/update", bankForm);
+
+      const payload = {
+            ...bank,
+            pin: pinCode 
+        };
+
+      await api.put("/users/update", payload);
       toast.success("Data Rekening Berhasil Disimpan!");
-      setIsBankDialogOpen(false); // Tutup modal edit
+      setIsBankDialogOpen(false); 
     } catch (error) {
       toast.error(error.response?.data?.message || "Gagal menyimpan data");
     } finally {

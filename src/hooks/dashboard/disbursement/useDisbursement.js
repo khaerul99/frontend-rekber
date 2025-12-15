@@ -18,6 +18,7 @@ export function useDisbursement() {
   const [proofFile, setProofFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [isPinOpen, setIsPinOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const fetchData = async () => {
 
@@ -52,28 +53,6 @@ export function useDisbursement() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = async () => {
-    if (!proofFile) return toast.error("Wajib upload bukti!");
-    setUploading(true);
-    
-    const formData = new FormData();
-    formData.append("image", proofFile);
-
-    try {
-      const url = actionType === 'DISBURSE' 
-        ? `/transactions/${selectedTrx.id}/disburse`
-        : `/transactions/${selectedTrx.id}/refund`;
-
-      await api.patch(url, formData);
-      toast.success("Berhasil diproses!");
-      setIsModalOpen(false);
-      fetchData();
-    } catch (error) {
-      toast.error("Gagal memproses");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const copyText = (text) => {
     navigator.clipboard.writeText(text);
@@ -82,31 +61,53 @@ export function useDisbursement() {
 
   const onUploadSubmit = () => {
       if (!proofFile) return toast.error("Wajib upload bukti!");
-      setIsPinOpen(true); // <--- BUKA PIN DULU, JANGAN LANGSUNG KIRIM
+      setIsPinOpen(true); 
   };
 
   // B. Fungsi Eksekusi (Dipanggil jika PIN Benar)
-  const executeDisbursement = async () => {
+  const executeDisbursement = async (pinCode) => {
     setUploading(true);
     const formData = new FormData();
+    formData.append("pin", pinCode);
     formData.append("image", proofFile);
 
+    const apiEndpoints = {
+      'DISBURSE': `/transactions/${selectedTrx.id}/disburse`,
+      'REFUND':   `/transactions/${selectedTrx.id}/refund`
+    };
+
     try {
-      const url = actionType === 'DISBURSE' 
-        ? `/transactions/${selectedTrx.id}/disburse`
-        : `/transactions/${selectedTrx.id}/refund`;
+      const url = apiEndpoints[actionType];
 
       await api.patch(url, formData);
       toast.success("Berhasil diproses!");
-      setIsModalOpen(false); // Tutup modal upload
+      setIsModalOpen(false); 
+      setIsPinOpen(false); 
       fetchData();
     } catch (error) {
+      console.log(error);
+      
       toast.error("Gagal memproses");
     } finally {
       setUploading(false);
     }
   };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        setProofFile(file);
+        setPreviewUrl(URL.createObjectURL(file)); // Buat URL lokal untuk preview
+    }
+};
+
+const handleCloseModal = () => {
+    setProofFile(null);
+    setPreviewUrl(null);
+    setIsModalOpen(false);
+};
+
   return {
-         actionType, transactions, isPinOpen,isModalOpen, refunds, selectedTrx, loading, proofFile, uploading, handleSubmit, onUploadSubmit, executeDisbursement,setIsModalOpen, openUploadModal, setIsPinOpen,  copyText, setProofFile
+         actionType, transactions, previewUrl, isPinOpen,isModalOpen, refunds, selectedTrx, loading, proofFile, uploading, handleFileSelect, handleCloseModal, onUploadSubmit, executeDisbursement,setIsModalOpen, openUploadModal,setPreviewUrl, setIsPinOpen,  copyText, setProofFile
   };
 }

@@ -1,7 +1,7 @@
 // src/app/dashboard/create/page.jsx
 "use client";
 
-import { Wallet, ArrowRight, Info } from "lucide-react";
+import { Wallet, ArrowRight, Info, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useCreateTransaction } from "@/hooks/dashboard/create/useCreateTransaction";
+import  {UserGuard}  from "@/components/userGuard/UserGuard";
 
 export default function CreateTransactionPage() {
   const {form, loading, handleAmountChange, handleSubmit, setForm} = useCreateTransaction();
   
 
   return (
+    <UserGuard>
     <div className="mx-auto space-y-6">
       
       {/* Header Halaman */}
@@ -105,5 +107,6 @@ export default function CreateTransactionPage() {
         </CardContent>
       </Card>
     </div>
+    </UserGuard>
   );
 }

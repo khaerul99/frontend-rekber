@@ -9,8 +9,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,11 +23,8 @@ export default function PinModal({ isOpen, onClose, onSuccess }) {
 
     setLoading(true);
     try {
-      // Cek PIN ke Backend
-      await api.post("/users/pin/verify", { pin });
-      
-      // Jika sukses, jalankan aksi selanjutnya (callback)
-      onSuccess();
+    
+      onSuccess(pin);
       onClose();
       setPin(""); // Reset
     } catch (error) {
