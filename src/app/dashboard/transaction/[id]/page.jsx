@@ -53,8 +53,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// Setup Socket di luar komponen agar tidak reconnect terus
-let socket;
 
 export default function TransactionDetailPage() {
   const { id } = useParams(); // Ambil ID dari URL
@@ -81,10 +79,11 @@ export default function TransactionDetailPage() {
   const returnFileRef = useRef(null);
 
   // preview
+  const [returnFile, setReturnFile] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  const [isDisputeOpen, setIsDisputeOpen] = useState(false); // Untuk buka/tutup modal
+  const [isDisputeOpen, setIsDisputeOpen] = useState(false); 
   const [disputeReason, setDisputeReason] = useState("");
 
   // State Review
@@ -160,6 +159,7 @@ export default function TransactionDetailPage() {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
+      setReturnFile(file);
       // Buat URL sementara agar gambar bisa muncul
       setPreviewUrl(URL.createObjectURL(file));
     }
@@ -215,11 +215,13 @@ export default function TransactionDetailPage() {
   };
 
   const handleReturnUpload = async (e) => {
-    const file = e.target.files[0];
     const desc = document.getElementById("returnDesc").value;
 
+    if (!desc) return toast.error("Harap isi Nomor Resi / Keterangan dulu!");
+    if (!returnFile) return toast.error("Harap pilih foto bukti resi!");
+
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("image", returnFile);
     formData.append("description", desc);
 
     try {
@@ -229,6 +231,12 @@ export default function TransactionDetailPage() {
     } catch (error) {
       toast.error("Gagal kirim");
     }
+  };
+
+  const handleCancelPreview = () => {
+  setReturnFile(null);
+  setPreviewUrl(null);
+  if (returnFileRef.current) returnFileRef.current.value = ""; // Reset input file
   };
 
   const handleDispute = async () => {
@@ -589,7 +597,7 @@ export default function TransactionDetailPage() {
                              </Button>
                         )}
                     </div>
-            </div>
+               </div>
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -720,23 +728,22 @@ export default function TransactionDetailPage() {
                 </div>
 
                 {/* Tombol Lihat Bukti Admin */}
-                <TableCell className="text-center flex justify-center">
+                <div className="text-center flex justify-center">
                         {transaction.proofs ? (
                             <Button 
                                 size="sm" 
                                 variant="outline" 
-                                onClick={() => setSelectedProof(`http://localhost:5000${ transaction.proofs.find(
-                          (p) => p.type === "admin_transfer_proof"
-                        ).imageUrl}`)}
+                                onClick={() => setSelectedProof(transaction.proofs.find((p) => p.type === "admin_transfer_proof" ).imageUrl)}
                             >
                                 <Eye size={14} className="mr-1"/> Lihat
                             </Button>
                         ) : (
                             <Badge variant="outline" className="text-red-500">No File</Badge>
                         )}
-                      </TableCell>
+                </div>
               </div>
             )}
+
 
             {transaction.status === "RETURN_PROCESS" && (
               <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 space-y-3">
@@ -744,51 +751,71 @@ export default function TransactionDetailPage() {
                   Proses Retur Disetujui
                 </h3>
                 <p className="text-sm text-orange-800 text-center">
-                  Admin menyetujui retur. Pembeli, silakan kirim barang ke
-                  alamat Penjual (cek di chat), lalu upload bukti resi di sini.
+                  Admin menyetujui retur. Silakan kirim barang & upload resi.
                 </p>
 
                 {isBuyer && (
-                  <div className="space-y-2 pt-2">
-                    {/* Input Teks Resi */}
+                  <div className="space-y-3 pt-2">
+                    
+                    {/* INPUT KETERANGAN RESI */}
                     <Input
                       placeholder="Nomor Resi / Keterangan Pengiriman"
                       id="returnDesc"
                     />
 
-                    <Button
-                      className="w-full bg-orange-600 hover:bg-orange-700"
-                      disabled={uploading}
-                      onClick={() => {
-                        // 1. Cek resi
-                        const desc =
-                          document.getElementById("returnDesc").value;
-                        if (!desc)
-                          return toast.error(
-                            "Harap isi Nomor Resi / Keterangan dulu!"
-                          );
+                    {/* AREA PREVIEW GAMBAR */}
+                    {previewUrl ? (
+                      <div className="border-2 border-dashed border-orange-300 rounded-lg p-2 bg-white">
+                        <p className="text-xs text-gray-500 mb-2 text-center">Preview Bukti Resi:</p>
+                        <img 
+                          src={previewUrl} 
+                          alt="Preview Resi" 
+                          className="w-full max-h-60 object-contain rounded mb-3" 
+                        />
+                        
+                        <div className="flex gap-2">
+                          {/* Tombol Batal */}
+                          <Button 
+                            variant="outline" 
+                            className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                            onClick={handleCancelPreview}
+                          >
+                            Ganti Foto
+                          </Button>
+                          
+                          {/* Tombol FINAL KIRIM */}
+                          <Button
+                            className="flex-1 bg-orange-600 hover:bg-orange-700"
+                            disabled={uploading}
+                            onClick={handleReturnUpload}
+                          >
+                            {uploading ? "Mengirim..." : "Kirim Bukti Sekarang"}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* TOMBOL PILIH FILE (Muncul jika belum ada gambar) */
+                      <Button
+                        className="w-full bg-white text-orange-600 border border-orange-300 hover:bg-orange-50"
+                        onClick={() => returnFileRef.current?.click()}
+                      >
+                        Pilih Foto Resi
+                      </Button>
+                    )}
 
-                        // 2. Panggil file input menggunakan REF (Lebih Aman)
-                        if (returnFileRef.current) {
-                          returnFileRef.current.click();
-                        }
-                      }}
-                    >
-                      {uploading ? "Mengupload..." : "Pilih Foto Resi & Kirim"}
-                    </Button>
-
-                    {/* Input File Tersembunyi (PAKE REF) */}
+                    {/* Input File Tersembunyi */}
                     <input
                       type="file"
                       hidden
-                      ref={returnFileRef} // <--- GANTI id JADI ref
-                      onChange={handleReturnUpload}
+                      ref={returnFileRef}
+                      onChange={handleFileSelect} // Ubah handler ke handleFileSelect
                       accept="image/*"
                     />
                   </div>
                 )}
               </div>
             )}
+  
 
             {transaction.status === "RETURN_SENT" && (
               <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 text-center space-y-3">
@@ -807,12 +834,12 @@ export default function TransactionDetailPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() =>
-                      setViewImage(
-                        transaction.proofs.find(
-                          (p) => p.type === "return_shipping_proof"
-                        ).imageUrl
-                      )
+                    onClick={() =>{
+                     const proof = transaction.proofs.find(p => p.type === "return_shipping_proof");
+                     console.log(proof);
+                     
+                        setViewImage(proof?.imageUrl || proof?.image_url);
+                    }
                     }
                   >
                     <Eye className="mr-2 h-4 w-4" /> Lihat Resi Retur
@@ -857,6 +884,52 @@ export default function TransactionDetailPage() {
                             </AlertDialog>
                         </div>
                     )}
+              </div>
+            )}
+
+            {transaction.status === "WAITING_REPLACEMENT" && (
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 space-y-4">
+                <div className="text-center">
+                  <h3 className="font-bold text-blue-700">Barang Retur Diterima</h3>
+                  <p className="text-sm text-blue-800">
+                    Penjual sedang memproses pengiriman <strong>Barang Pengganti</strong>.
+                  </p>
+                </div>
+
+                {/* TAMPILAN UNTUK PENJUAL: INPUT RESI BARU */}
+                {isSeller && (
+                  <div className="bg-white p-3 rounded border border-blue-100 shadow-sm space-y-3">
+                    <label className="text-sm font-semibold text-slate-700">
+                      Masukkan Resi Barang Pengganti:
+                    </label>
+                    
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Contoh: JNE-99887766" 
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                      />
+                      <Button 
+                        className="bg-blue-600 hover:bg-blue-700"
+                        onClick={() => handleAction('sent')} 
+                      >
+                        Kirim Ulang
+                      </Button>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      *Klik tombol ini setelah Anda mengirim barang pengganti ke Pembeli.
+                    </p>
+                  </div>
+                )}
+
+                {/* TAMPILAN UNTUK PEMBELI */}
+                {isBuyer && (
+                  <div className="text-center py-2 bg-white/50 rounded border border-dashed border-blue-300">
+                    <p className="text-sm text-slate-600 italic">
+                      ⏳ Menunggu Penjual menginput resi baru...
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1076,7 +1149,7 @@ export default function TransactionDetailPage() {
           <div className="flex-1 w-full h-full relative flex items-center justify-center p-4 bg-white/95 overflow-hidden">
             {viewImage ? (
               <img
-                src={`http://localhost:5000${viewImage}`}
+                src={viewImage}
                 alt="Bukti Full"
                 className="w-auto h-auto max-w-full max-h-full object-contain rounded-lg shadow-2xl"
               />
@@ -1101,7 +1174,7 @@ export default function TransactionDetailPage() {
             </Button>
             {viewImage && (
               <a
-                href={`http://localhost:5000${viewImage}`}
+                href={viewImage}
                 target="_blank"
                 rel="noreferrer"
               >

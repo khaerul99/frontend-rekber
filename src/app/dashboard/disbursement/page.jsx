@@ -1,6 +1,6 @@
 "use client";
 
-import { Banknote, UploadCloud, Undo2 , Copy} from "lucide-react";
+import { Banknote, UploadCloud, Undo2 , Copy, FileImage, X} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -82,7 +82,7 @@ import AdminGuard from "@/components/adminGuard/AdminGuard";
   );
 
 export default function DisbursementPage() {
-  const { transactions, isModalOpen, refunds, isPinOpen, actionType, uploading, onUploadSubmit,executeDisbursement,openUploadModal, setIsPinOpen, handleSubmit,setIsModalOpen, copyText, setProofFile} = useDisbursement();
+  const { transactions, isModalOpen, refunds, isPinOpen, actionType, proofFile, previewUrl,setPreviewUrl, handleCloseModal, handleFileSelect, executeDisbursement,openUploadModal, setIsPinOpen, copyText, setProofFile} = useDisbursement();
 
 
 
@@ -117,16 +117,71 @@ export default function DisbursementPage() {
       </Tabs>
 
       {/* MODAL UPLOAD */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
+     <Dialog open={isModalOpen} onOpenChange={handleCloseModal} previewUrl={previewUrl} proofFile={proofFile} setPreviewUrl={setPreviewUrl}>
+        <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-                <DialogTitle>Upload Bukti {actionType === 'DISBURSE' ? 'Transfer' : 'Refund'}</DialogTitle>
+                <DialogTitle>
+                    Upload Bukti {actionType === 'DISBURSE' ? 'Transfer Penjual' : 'Refund Pembeli'}
+                </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-2">
-                <Input type="file" accept="image/*" onChange={(e) => setProofFile(e.target.files[0])} />
+            
+            <div className="py-4 space-y-4">
+                {/* LOGIKA TAMPILAN: Preview vs Input File */}
+                {!previewUrl ? (
+                    // KONDISI 1: Belum ada file (Tampilkan Input)
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:bg-slate-50 transition cursor-pointer relative">
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleFileSelect}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        <div className="flex flex-col items-center gap-2 text-slate-500">
+                            <UploadCloud size={32} />
+                            <span className="text-sm font-medium">Klik untuk pilih gambar</span>
+                            <span className="text-xs">Format: JPG, PNG (Max 5MB)</span>
+                        </div>
+                    </div>
+                ) : (
+                    // KONDISI 2: File sudah dipilih (Tampilkan Preview)
+                    <div className="relative rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
+                        {/* Tombol Hapus/Ganti */}
+                        <button 
+                            onClick={() => { setProofFile(null); setPreviewUrl(null); }}
+                            className="absolute top-2 right-2 p-1 bg-white/80 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-full shadow-sm transition"
+                        >
+                            <X size={18} />
+                        </button>
+
+                        <div className="p-2">
+                             <p className="text-xs text-center text-slate-500 mb-2 font-medium">Preview:</p>
+                             <img 
+                                src={previewUrl} 
+                                alt="Preview Bukti" 
+                                className="w-full h-48 object-contain rounded-md bg-white border" 
+                             />
+                             <div className="flex items-center gap-2 justify-center mt-2 text-xs text-green-600 font-medium">
+                                <FileImage size={14} />
+                                <span>{proofFile.name}</span>
+                             </div>
+                        </div>
+                    </div>
+                )}
             </div>
-            <DialogFooter>
-                <Button onClick={onUploadSubmit} disabled={uploading}>{uploading ? "Mengupload..." : "Kirim"}</Button>
+
+            <DialogFooter className="flex gap-2 sm:justify-end">
+                <Button variant="ghost" onClick={handleCloseModal}>
+                    Batal
+                </Button>
+                
+                {/* TOMBOL INI MEMBUKA PIN MODAL (Bukan langsung upload) */}
+                <Button 
+                    onClick={() => setIsPinOpen(true)} 
+                    disabled={!proofFile} // Disable kalau belum pilih file
+                    className="bg-blue-600 hover:bg-blue-700"
+                >
+                    Lanjut Konfirmasi
+                </Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
