@@ -56,5 +56,5 @@ Pastikan **Backend** sudah berjalan sebelum menjalankan Frontend.
 
 ### 1. Clone Repository
 ```bash
-git clone [https://github.com/username-anda/rekber-frontend.git](https://github.com/username-anda/rekber-frontend.git
+git clone [[https://github.com/username-anda/rekber-frontend.git](https://github.com/khaerul99/frontend-rekber.git)]
 cd rekber-frontend
