@@ -14,7 +14,7 @@ Dibangun menggunakan **Next.js 14 (App Router)** untuk performa maksimal dan SEO
 
 ## 📸 Preview
 
-*(Anda bisa menambahkan screenshot aplikasi di sini nanti)*
+https://github.com/khaerul99/frontend-rekber/issues/13#issue-3736823759
 ---
 
 ## ✨ Fitur Unggulan
