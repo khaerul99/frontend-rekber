@@ -1,11 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/lib/axios";
 import { format } from "date-fns";
-import { toast } from "sonner";
 import { CheckCircle, XCircle, Eye, ExternalLink } from "lucide-react";
-
 import {
   Card,
   CardContent,
@@ -41,79 +37,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import AdminGuard from "@/components/adminGuard/AdminGuard";
-import useUserStore from "@/store/useUserStore";
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case "PENDING_PAYMENT":
-      return "bg-yellow-500 hover:bg-yellow-600";
-    case "VERIFYING":
-      return "bg-orange-500 hover:bg-orange-600";
-    case "PROCESSED":
-      return "bg-blue-500 hover:bg-blue-600";
-    case "SENT":
-      return "bg-purple-500 hover:bg-purple-600";
-    case "COMPLETED":
-      return "bg-green-500 hover:bg-green-600";
-    case "DISPUTED":
-      return "bg-red-500 hover:bg-red-600";
-    case "CANCELLED":
-      return "bg-slate-500 hover:bg-slate-600";
-    default:
-      return "bg-slate-500";
-  }
-};
+import { useValidation } from "@/hooks/dashboard/validation/useValidation";
 
 export default function ValidationPage() {
-  const { user } = useUserStore();
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // State untuk Modal Lihat Bukti
-  const [selectedProof, setSelectedProof] = useState(null);
-
-  // 1. Fetch Data
-  const fetchVerifying = async () => {
-    if (!user || user.role !== "ADMIN") {
-         setLoading(false);
-         return; 
-      }
-    try {
-      const res = await api.get("/transactions/admin/verifying");
-      console.log("DATA DARI BACKEND:", res.data);
-      setTransactions(res.data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchVerifying();
-  }, []);
-
-  // 2. Handle Terima (Valid)
-  const handleAccept = async (id) => {
-    try {
-      await api.patch(`/transactions/${id}/verify`);
-      toast.success("Pembayaran Diterima! Status: PROCESSED");
-      fetchVerifying(); // Refresh tabel
-    } catch (error) {
-      toast.error("Gagal memproses");
-    }
-  };
-
-  // 3. Handle Tolak (Invalid)
-  const handleReject = async (id) => {
-    try {
-      await api.patch(`/transactions/${id}/reject`);
-      toast.warning("Pembayaran Ditolak. Status dikembalikan ke PENDING.");
-      fetchVerifying(); // Refresh tabel
-    } catch (error) {
-      toast.error("Gagal menolak");
-    }
-  };
+  const { transactions, loading, selectedProof, setSelectedProof, handleAccept, handleReject, getStatusColor } = useValidation();
+ 
 
   return (
     <AdminGuard>

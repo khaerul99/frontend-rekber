@@ -29,9 +29,14 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function UserNav() {
-  const { user, logout } = useUserStore();
+  const { user, logout, _hasHydrated } = useUserStore();
   const router = useRouter();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false); // State untuk kontrol popup
+
+
+  if (!_hasHydrated) {
+      return null; 
+  }
 
   const handleLogout = () => {
     logout();
@@ -73,14 +78,12 @@ export default function UserNav() {
               </DropdownMenuItem>
             </Link>
             
-            {/* {user.role === 'ADMIN' && ( */}
                <Link href="/dashboard/settings">
                   <DropdownMenuItem className="cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Pengaturan</span>
                   </DropdownMenuItem>
                </Link>
-            {/* )} */}
           </DropdownMenuGroup>
           
           <DropdownMenuSeparator />

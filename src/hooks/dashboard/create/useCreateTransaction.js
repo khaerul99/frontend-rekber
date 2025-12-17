@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/lib/axios";
 import { toast } from "sonner";
-import useUserStore from "@/store/useUserStore";
+import { transactionService } from "@/services/transaction/transactionServices";
 
 
 export function useCreateTransaction() {
@@ -35,7 +34,7 @@ export function useCreateTransaction() {
         return;
       }
 
-      const res = await api.post("/transactions", {
+      const res = await transactionService.createTransaction({
         sellerEmail: form.sellerEmail,
         amount: parseInt(form.amount), 
         description: form.description,

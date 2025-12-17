@@ -1,21 +1,49 @@
 // src/store/useUserStore.js
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 const useUserStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
+      isAuthenticated: false,
+      _hasHydrated: false,
       
-      // Fungsi Login: Simpan data user & token
-      login: (userData, token) => set({ user: userData, token }),
+      login: (userData, token) => set({ user: userData, token, isAuthenticated: true }),
       
-      // Fungsi Logout: Hapus semua data
-      logout: () => set({ user: null, token: null }),
+      logout: () => {
+        localStorage.removeItem("token"); 
+        localStorage.removeItem("rekber-session");
+
+        set({ user: null, token: null, isAuthenticated: false });
+      },
+
+      updateUser: (updates) => set((state) => ({
+        user: { ...state.user, ...updates }
+      })),
+
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
+
+
+      isAdmin: () => {
+        const { user } = get();
+        return user?.role === 'ADMIN';
+      }
+
     }),
     {
-      name: 'user-storage', // Nama key di LocalStorage browser
+      name: 'rekber-session', 
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ 
+        user: state.user, 
+        token: state.token, 
+        isAuthenticated: state.isAuthenticated 
+      }), 
+
+      onRehydrateStorage: () => (state) => {
+        state.setHasHydrated(true);
+      }
     }
   )
 );

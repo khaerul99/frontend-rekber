@@ -3,6 +3,8 @@
 import { use, useEffect, useState } from "react";
 import api from "@/lib/axios";
 import useUserStore from "@/store/useUserStore";
+import { adminService } from "@/services/admin/adminServices";
+import { transactionService } from "@/services/transaction/transactionServices";
 
 export function useHistoryAdmin() {
   const { user } = useUserStore();
@@ -23,9 +25,9 @@ export function useHistoryAdmin() {
       }
 
       try {
-        const res = await api.get("/transactions/admin/all");
-        setTransactions(res.data);
-        setFilteredTransactions(res.data);
+        const dataTransaction = await transactionService.getAllTransactions();
+        setTransactions(dataTransaction);
+        setFilteredTransactions(dataTransaction);
       } catch (error) {
         console.error("Gagal ambil data", error);
       } finally {
@@ -59,19 +61,14 @@ export function useHistoryAdmin() {
   // Helper Warna
  const getStatusColor = (status) => {
     switch (status) {
-      case "PENDING_PAYMENT": return "bg-yellow-500";
-      case "VERIFYING": return "bg-orange-500";
-      case "PROCESSED": return "bg-blue-500";
-      case "SENT": return "bg-purple-500";
-      
-      // COMPLETED = Barang Diterima (Uang Masih di Admin)
-      case "COMPLETED": return "bg-green-500"; 
-      
-      // DISBURSED = Uang Sudah Cair (Admin Sudah TF)
-      case "DISBURSED": return "bg-cyan-600"; 
-      
-      case "DISPUTED": return "bg-red-500"; // Tambahan untuk sengketa
-      case "CANCELLED": return "bg-slate-500";
+      case "PENDING_PAYMENT": return "bg-yellow-500 hover:bg-yellow-600";
+      case "VERIFYING": return "bg-orange-500 hover:bg-orange-600";
+      case "PROCESSED": return "bg-blue-500 hover:bg-blue-600";
+      case "SENT": return "bg-purple-500 hover:bg-purple-600";
+      case "WAITING_REPLACEMENT": return "bg-indigo-500 hover:bg-indigo-600";
+      case "COMPLETED": return "bg-green-500 hover:bg-green-600";
+      case "DISPUTED": return "bg-red-500 hover:bg-red-600";
+      case "CANCELLED": return "bg-slate-500 hover:bg-slate-600";
       default: return "bg-slate-500";
     }
   };

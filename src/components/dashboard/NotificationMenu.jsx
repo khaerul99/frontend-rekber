@@ -41,7 +41,6 @@ export default function NotificationMenu() {
           return; 
         }
 
-        // console.error("Gagal ambil notif");
       }
     };
 
@@ -52,7 +51,7 @@ export default function NotificationMenu() {
     return () => clearInterval(interval);
   }, []); 
 
-  // Saat lonceng diklik -> Tandai sudah baca
+  
   const handleOpenChange = async (open) => {
     setIsOpen(open);
     if (open && unreadCount > 0) {

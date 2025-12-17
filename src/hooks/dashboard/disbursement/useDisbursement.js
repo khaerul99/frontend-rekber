@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import useUserStore from "@/store/useUserStore";
+import { transactionService } from "@/services/transaction/transactionServices";
 
 export function useDisbursement() {
   const { user } = useUserStore();
@@ -29,12 +30,12 @@ export function useDisbursement() {
 
     try {
       // Ambil Data Pencairan
-      const resDisburse = await api.get("/transactions/admin/disbursement");
-      setTransactions(resDisburse.data);
+      const dataDisbursement = await transactionService.getDisbursements();
+      setTransactions(dataDisbursement);
 
       // Ambil Data Refund
-      const resRefund = await api.get("/transactions/admin/refunds");
-      setRefunds(resRefund.data);
+      const dataRefund = await transactionService.getRefunds();
+      setRefunds(dataRefund);
     } catch (error) {
       console.error(error);
     } finally {
@@ -71,15 +72,15 @@ export function useDisbursement() {
     formData.append("pin", pinCode);
     formData.append("image", proofFile);
 
-    const apiEndpoints = {
-      'DISBURSE': `/transactions/${selectedTrx.id}/disburse`,
-      'REFUND':   `/transactions/${selectedTrx.id}/refund`
-    };
+ 
 
     try {
-      const url = apiEndpoints[actionType];
+      if (actionType === 'DISBURSE') {
+            await disbursementService.disburse(selectedTrx.id, formData);
+        } else {
+            await disbursementService.refund(selectedTrx.id, formData);
+        }
 
-      await api.patch(url, formData);
       toast.success("Berhasil diproses!");
       setIsModalOpen(false); 
       setIsPinOpen(false); 

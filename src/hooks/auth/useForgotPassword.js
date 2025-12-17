@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import api from "@/lib/axios";
+import { passwordService } from "@/services/auth/authServices";
 
 
 export function useForgotPassword() {
@@ -12,7 +12,7 @@ export function useForgotPassword() {
       e.preventDefault();
       setLoading(true);
       try {
-        await api.post("/auth/forgot-password", { email });
+        await passwordService.forgotPassword(email);
         toast.success("Silakan cek email Anda (Inbox/Spam)!");
       } catch (error) {
         toast.error(error.response?.data?.message || "Gagal mengirim email");
