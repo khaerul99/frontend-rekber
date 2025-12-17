@@ -57,7 +57,7 @@ export function useProfile() {
         setLoading(true);
         try {
           const res = await authService.setup2FA();
-          setQrCodeUrl(res.data.qrCode); 
+          setQrCodeUrl(res.qrCode); 
           setIs2FAModalOpen(true); 
         } catch (error) {
           toast.error("Gagal generate 2FA");
