@@ -124,6 +124,7 @@ export function useProfile() {
     otpCode,
     isFetching,
     defaultTab,
+    setIsPinOpen,
     setIsBankDialogOpen,
     setIs2FAModalOpen,
     setOtpCode,

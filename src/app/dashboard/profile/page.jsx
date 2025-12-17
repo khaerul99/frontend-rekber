@@ -50,6 +50,7 @@ export default function ProfilePage() {
     setIs2FAModalOpen,
     setBank,
     setOtpCode,
+    setIsPinOpen,
     defaultTab,
   } = useProfile();
 
