@@ -19,9 +19,9 @@ export function useHistory() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const res = await transactionService.getMyTrasactions();
-        setTransactions(res.data);
-        setFilteredTransactions(res.data);
+        const data = await transactionService.getMyTransactions();
+        setTransactions(data);
+        setFilteredTransactions(data);
       } catch (error) {
         console.error("Gagal ambil data", error);
       } finally {

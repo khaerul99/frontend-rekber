@@ -42,7 +42,7 @@ export function useCreateTransaction() {
 
       toast.success("Transaksi Berhasil Dibuat!");
 
-      router.push(`/dashboard/transaction/${res.data.data.id}`);
+      router.push(`/dashboard/transaction/${res.data.id}`);
     } catch (error) {
       toast.error(error.response?.data?.message || "Gagal membuat transaksi");
     } finally {

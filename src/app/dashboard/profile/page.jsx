@@ -34,6 +34,7 @@ import { useProfile } from "@/hooks/dashboard/profile/useProfile";
 export default function ProfilePage() {
   const {
     user,
+    name,
     loading,
     isPinOpen,
     isBankDialogOpen,
@@ -42,6 +43,7 @@ export default function ProfilePage() {
     qrCodeUrl,
     otpCode,
     isFetching,
+    isEditNameOpen,
     handleSetup2FA,
     handleVerify2FA,
     handleBankSubmit,
@@ -51,6 +53,9 @@ export default function ProfilePage() {
     setBank,
     setOtpCode,
     setIsPinOpen,
+    setIsEditNameOpen,
+    handleUpdateName,
+    setName,
     defaultTab,
   } = useProfile();
 
@@ -71,7 +76,21 @@ export default function ProfilePage() {
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold">{user?.username}</h2>
+          <div className="flex items-center gap-2">
+                        <h2 className="text-2xl font-semibold">
+                            {user?.username}
+                        </h2>
+                        
+                        {/* Tombol Icon Pensil */}
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-slate-500 hover:text-black"
+                            onClick={() => setIsEditNameOpen(true)}
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </Button>
+                    </div>
           <p className="text-slate-500">{user?.email}</p>
           <div className="flex gap-2 mt-1">
             <Badge variant="secondary">Role: {user?.role || "MEMBER"}</Badge>
@@ -218,6 +237,37 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Edit nama */}
+        <Dialog open={isEditNameOpen} onOpenChange={setIsEditNameOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Ubah Nama Lengkap</DialogTitle>
+                        <DialogDescription>
+                            Nama ini akan ditampilkan di profil publik Anda.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleUpdateName} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>Nama Lengkap</Label>
+                            <Input 
+                                value={name} 
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Masukkan nama baru"
+                            />
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <Button type="button" variant="outline" onClick={() => setIsEditNameOpen(false)}>
+                                Batal
+                            </Button>
+                            <Button type="submit" disabled={loading}>
+                                {loading ? "Menyimpan..." : "Simpan"}
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
         {/* TAB 2: KEAMANAN */}
         <TabsContent value="security" className="flex flex-col gap-4">
