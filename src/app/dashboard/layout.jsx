@@ -11,8 +11,10 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import MobileNav from "@/components/dashboard/MobileNav";
 
 export default function DashboardLayout({ children }) {
-  const { user, token } = useUserStore();
+  const { user, token, _hasHydrated } = useUserStore();
   const router = useRouter();
+
+ 
 
   // Proteksi Halaman
   useEffect(() => {
@@ -25,6 +27,10 @@ export default function DashboardLayout({ children }) {
       }
     }
   }, [token, router]);
+
+   if (!_hasHydrated) {
+      return null; 
+  }
 
   if (!user) return null;
 

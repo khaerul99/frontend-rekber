@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/axios"; // Pastikan path ini sesuai dengan file axios kamu
 import { toast } from "sonner";
+import { authService } from "@/services/auth/authServices";
 
 export function useVerifyEmail() {
     const router = useRouter();
@@ -22,7 +23,7 @@ export function useVerifyEmail() {
 
       try {
         // Panggil API Backend
-        await api.post("/auth/verify-email", { token });
+        await authService.verifyEmail(token);
         
         setStatus("success");
         toast.success("Email berhasil diverifikasi!");

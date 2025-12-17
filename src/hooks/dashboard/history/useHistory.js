@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
 import useUserStore from "@/store/useUserStore";
+import { userService } from "@/services/users/userServices";
+import { transactionService } from "@/services/transaction/transactionServices";
 
 export function useHistory() {
   const { user } = useUserStore();
@@ -18,7 +19,7 @@ export function useHistory() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const res = await api.get("/transactions/my-transactions");
+        const res = await transactionService.getMyTrasactions();
         setTransactions(res.data);
         setFilteredTransactions(res.data);
       } catch (error) {

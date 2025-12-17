@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import useUserStore from "@/store/useUserStore";
+import { authService } from "@/services/auth/authServices";
+import { userService } from "@/services/users/userServices";
 
 
 export function useProfile() {
@@ -23,12 +25,12 @@ export function useProfile() {
       const [qrCodeUrl, setQrCodeUrl] = useState("");
       const [otpCode, setOtpCode] = useState("");
     
-      // 1. Ambil Data Profil Terbaru
+      // Data Profil Terbaru
       useEffect(() => {
         const fetchProfile = async () => {
           try {
-            const res = await api.get("/users/me");
-            const userData = res.data;
+            const dataProfile = await userService.getProfile();
+            const userData = dataProfile;
     
             setBank({
               bank_name: userData.bank_name || "",
@@ -54,9 +56,9 @@ export function useProfile() {
       const handleSetup2FA = async () => {
         setLoading(true);
         try {
-          const res = await api.post("/auth/2fa/setup");
-          setQrCodeUrl(res.data.qrCode); // Simpan gambar QR
-          setIs2FAModalOpen(true); // Buka Modal
+          const res = await authService.setup2FA();
+          setQrCodeUrl(res.data.qrCode); 
+          setIs2FAModalOpen(true); 
         } catch (error) {
           toast.error("Gagal generate 2FA");
         } finally {
@@ -69,11 +71,10 @@ export function useProfile() {
         if (!otpCode) return toast.error("Masukkan kode OTP dulu");
         setLoading(true);
         try {
-          await api.post("/auth/2fa/verify", { token: otpCode });
+          await authService.verify2FA(otpCode);
           toast.success("2FA Berhasil Diaktifkan!");
           setIs2FAModalOpen(false);
     
-          // Reload halaman biar status di store berubah jadi true
           window.location.reload();
         } catch (error) {
           toast.error("Kode OTP Salah / Kadaluarsa");
@@ -86,7 +87,7 @@ export function useProfile() {
     
       const handleBankSubmit = (e) => {
         e.preventDefault();
-        setIsPinOpen(true); // Buka Modal PIN
+        setIsPinOpen(true); 
       };
     
       const executeSaveBank = async (pinCode) => {
@@ -97,8 +98,8 @@ export function useProfile() {
                 ...bank,
                 pin: pinCode 
             };
-    
-          await api.put("/users/update", payload);
+
+          await userService.updateUser(payload);
           toast.success("Data Rekening Berhasil Disimpan!");
           setIsBankDialogOpen(false); 
         } catch (error) {

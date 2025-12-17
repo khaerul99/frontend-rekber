@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { toast } from "sonner";
+import { authService } from "@/services/auth/authServices";
 
 export function useRegister() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export function useRegister() {
 
     try {
       // Panggil API Backend
-      await api.post("/auth/register",  form);
+      await authService.register(form);
 
     
       toast.success("Registrasi Berhasil! Silakan Login.");
@@ -53,7 +54,6 @@ export function useRegister() {
     }
   };
 
-  // Return semua yang dibutuhkan oleh View (Halaman)
   return {
     form,
     loading,

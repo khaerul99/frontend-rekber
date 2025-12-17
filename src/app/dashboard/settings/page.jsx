@@ -16,7 +16,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { useSettings } from "@/hooks/dashboard/settings/useSettings";
 
 export default function SettingsPage() {
-    const { user, defaultTab, banks, fee, passForm, pinForm, loading, isModalOpen, editingBank, bankForm, previewLogo, openModal, setIsModalOpen, setBankForm, setLogoFile, handleSaveBank, handleDeleteBank, handleSaveFee, handleUpdatePassword, handleSavePin } = useSettings();
+    const { user, defaultTab, banks, fee, passForm, pinForm, loading, isModalOpen, editingBank, bankForm, previewLogo, openModal,setPinForm, setIsModalOpen, setBankForm, setLogoFile, handleSaveBank, handleDeleteBank, handleSaveFee, handleUpdatePassword, handleSavePin } = useSettings();
 
 
 if (!user) {

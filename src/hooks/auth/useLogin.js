@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import useUserStore from "@/store/useUserStore";
+import { authService } from "@/services/auth/authServices";
 
 
 export function useLogin() {
@@ -30,23 +31,23 @@ export function useLogin() {
     setLoading(true);
 
     try {
-      const res = await api.post("/auth/login", form);
+      const data = await authService.login(form);
 
-      if (res.data.require2FA) {
+      if (data.require2FA) {
         setStep("2FA");
         toast.info("Masukkan kode Authenticator Anda.");
         setLoading(false);
         return;
       }
 
-      const token = res.data.token;
+      const token = data.token;
       localStorage.setItem("token", token);
-      login(res.data, token);
+      login(data, token);
 
       toast.success("Login Berhasil!");
       router.push("/dashboard");
     } catch (error) {
-      
+
       toast.error(error.response?.data?.message || "Terjadi kesalahan");
 
       if (step === "2FA") {

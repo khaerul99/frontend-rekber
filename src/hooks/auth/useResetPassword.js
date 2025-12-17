@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation"; // Pakai useParams untuk ambil token
-import api from "@/lib/axios";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { passwordService } from "@/services/auth/authServices";
 
 export function useResetPassword() {
   const { token } = useParams(); // Ambil token dari URL
@@ -22,7 +22,7 @@ export function useResetPassword() {
       }
     setLoading(true);
     try {
-      await api.put(`/auth/reset-password/${token}`, { 
+      await passwordService.resetPassword(token, { 
         password: password,
         confirmPassword: confirmPassword 
       });

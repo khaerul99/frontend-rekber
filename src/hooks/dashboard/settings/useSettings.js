@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import useUserStore from "@/store/useUserStore";
+import { authService } from "@/services/auth/authServices";
+import { adminService } from "@/services/admin/adminServices";
+import { userService } from "@/services/users/userServices";
 
 export function useSettings() {
   const { user } = useUserStore();
@@ -38,10 +41,10 @@ export function useSettings() {
   // Load Data
   const fetchData = async () => {
     try {
-      const resBanks = await api.get("/settings/admin-banks");
-      setBanks(resBanks.data);
-      const resFee = await api.get("/settings/payment");
-      setFee(resFee.data.admin_fee || "0");
+      const dataBank = await adminService.getAllBanks();
+      setBanks(dataBank);
+      const dataFee = await adminService.getAdminFee();
+      setFee(dataFee.admin_fee || "0");
     } catch (error) {
       console.error(error);
     }
@@ -61,7 +64,7 @@ export function useSettings() {
         bankHolder: bank.bankHolder,
       });
       setPreviewLogo(
-        bank.logoUrl ? `http://localhost:5000${bank.logoUrl}` : null
+        bank.logoUrl ? bank.logoUrl : null
       );
     } else {
       setBankForm({ bankName: "", bankNumber: "", bankHolder: "" });
@@ -80,16 +83,17 @@ export function useSettings() {
     formData.append("bankName", bankForm.bankName);
     formData.append("bankNumber", bankForm.bankNumber);
     formData.append("bankHolder", bankForm.bankHolder);
+
     if (logoFile) formData.append("logo", logoFile);
 
     try {
       if (editingBank) {
         // Update
-        await api.put(`/settings/admin-banks/${editingBank.id}`, formData);
+        await adminService.updateBank(editingBank.id, formData);
         toast.success("Bank berhasil diupdate");
       } else {
         // Create
-        await api.post("/settings/admin-banks", formData);
+        await adminService.addBank(formData);
         toast.success("Bank berhasil ditambahkan");
       }
       setIsModalOpen(false);
@@ -105,7 +109,7 @@ export function useSettings() {
   const handleDeleteBank = async (id) => {
     if (!confirm("Yakin hapus rekening ini?")) return;
     try {
-      await api.delete(`/admin-banks/${id}`);
+      await adminService.deleteBank(id);
       toast.success("Bank dihapus");
       fetchData();
     } catch (error) {
@@ -118,7 +122,7 @@ export function useSettings() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.put("/settings/payment", {
+      await adminService.addFee({
         admin_fee: fee,
       });
 
@@ -138,7 +142,7 @@ export function useSettings() {
     }
     setLoading(true);
     try {
-      await api.put("/users/change-password", {
+      await userService.updatePassword({
         currentPassword: passForm.oldPass,
         newPassword: passForm.newPass,
       });
@@ -154,10 +158,9 @@ export function useSettings() {
  
   const handleSavePin = async (e) => {
     e.preventDefault();
-    if (pin.length !== 6) return toast.error("PIN harus 6 digit");
     setLoading(true);
     try {
-      await api.put("/users/pin", pinForm);
+        await userService.savePin(pinForm);
       toast.success("PIN Berhasil Disimpan");
       setPinForm({ pin: "", password: "" });
     } catch (error) {
@@ -183,6 +186,7 @@ export function useSettings() {
     bankForm,
     logoFile,
     previewLogo,
+    setPinForm,
     setIsModalOpen,
     setBankForm,
     setLogoFile,

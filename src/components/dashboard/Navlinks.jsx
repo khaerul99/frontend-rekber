@@ -19,12 +19,13 @@ import useUserStore from "@/store/useUserStore";
 
 export default function NavLinks({ onNavigate }) {
   const pathname = usePathname();
-  const { user } = useUserStore();
+  const { isAdmin} = useUserStore();
+
 
   // Struktur Data Baru: Array of Groups
   let menuGroups = [];
 
-  if (user?.role === "ADMIN") {
+  if (isAdmin()) {
     // --- MENU KHUSUS ADMIN ---
     menuGroups = [
       {

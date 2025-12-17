@@ -3,6 +3,8 @@
 import { use, useEffect, useState } from "react";
 import api from "@/lib/axios";
 import useUserStore from "@/store/useUserStore";
+import { adminService } from "@/services/admin/adminServices";
+import { transactionService } from "@/services/transaction/transactionServices";
 
 export function useHistoryAdmin() {
   const { user } = useUserStore();
@@ -23,9 +25,9 @@ export function useHistoryAdmin() {
       }
 
       try {
-        const res = await api.get("/transactions/admin/all");
-        setTransactions(res.data);
-        setFilteredTransactions(res.data);
+        const dataTransaction = await transactionService.getAllTransactions();
+        setTransactions(dataTransaction);
+        setFilteredTransactions(dataTransaction);
       } catch (error) {
         console.error("Gagal ambil data", error);
       } finally {

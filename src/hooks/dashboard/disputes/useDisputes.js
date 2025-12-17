@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import useUserStore from "@/store/useUserStore";
+import { transactionService } from "@/services/transaction/transactionServices";
 
 export function useDisputes() {
   const [transactions, setTransactions] = useState([]);
@@ -16,8 +17,8 @@ export function useDisputes() {
       return;
     }
     try {
-      const res = await api.get("/transactions/admin/disputes");
-      setTransactions(res.data);
+      const dataDisputes = await transactionService.getDisputes();
+      setTransactions(dataDisputes);
     } catch (error) {
       console.error(error);
     } finally {
@@ -31,7 +32,7 @@ export function useDisputes() {
 
   const handleResolve = async (id, decision) => {
     try {
-      await api.post(`/transactions/admin/disputes/${id}/resolve`, {
+      await transactionService.resolveDispute(id, {
         decision,
       });
       toast.success(
