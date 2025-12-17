@@ -1,10 +1,5 @@
-// src/app/dashboard/profile/page.jsx
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/lib/axios";
-import useUserStore from "@/store/useUserStore";
-import { toast } from "sonner";
 import {
   CreditCard,
   Pencil,
@@ -34,129 +29,34 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import PinModal from "@/components/dashboard/PinModal";
+import { useProfile } from "@/hooks/dashboard/profile/useProfile";
 
 export default function ProfilePage() {
-  const { user, login } = useUserStore();
-  const [loading, setLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
-  const [isPinOpen, setIsPinOpen] = useState(false);
+  const {
+    user,
+    loading,
+    isPinOpen,
+    isBankDialogOpen,
+    is2FAModalOpen,
+    bank,
+    qrCodeUrl,
+    otpCode,
+    isFetching,
+    handleSetup2FA,
+    handleVerify2FA,
+    handleBankSubmit,
+    executeSaveBank,
+    setIsBankDialogOpen,
+    setIs2FAModalOpen,
+    setBank,
+    setOtpCode,
+    defaultTab,
+  } = useProfile();
 
-  // State Modal
-  const [isBankDialogOpen, setIsBankDialogOpen] = useState(false);
-  const [is2FAModalOpen, setIs2FAModalOpen] = useState(false);
-
-  // State Data Bank
-  const [bank, setBank] = useState("")
-
-  // State Data 2FA
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-
-  // 1. Ambil Data Profil Terbaru
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await api.get("/users/me");
-        const userData = res.data;
-
-        setBank({
-          bank_name: userData.bank_name || "",
-          bank_account: userData.bank_account || "",
-          bank_holder: userData.bank_holder || "",
-        });
-
-        const currentToken = localStorage.getItem("token");
-        if (currentToken) {
-          login(userData, currentToken);
-        }
-      } catch (error) {
-        console.error("Gagal ambil profil", error);
-      } finally {
-        setIsFetching(false);
-      }
-    };
-
-    fetchProfile();
-  }, [login]);
-
-  //  FUNGSI DATA BANK ---
-  // const handleUpdateBank = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   try {
-  //     await api.put("/users/update", bankForm);
-  //     toast.success("Data Rekening Berhasil Disimpan!");
-  //     setIsBankDialogOpen(false);
-  //   } catch (error) {
-  //     toast.error(error.response?.data?.message || "Gagal menyimpan data");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  //  Minta QR Code ke Backend
-  const handleSetup2FA = async () => {
-    setLoading(true);
-    try {
-      const res = await api.post("/auth/2fa/setup");
-      setQrCodeUrl(res.data.qrCode); // Simpan gambar QR
-      setIs2FAModalOpen(true); // Buka Modal
-    } catch (error) {
-      toast.error("Gagal generate 2FA");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  //  Verifikasi Kode OTP
-  const handleVerify2FA = async () => {
-    if (!otpCode) return toast.error("Masukkan kode OTP dulu");
-    setLoading(true);
-    try {
-      await api.post("/auth/2fa/verify", { token: otpCode });
-      toast.success("2FA Berhasil Diaktifkan!");
-      setIs2FAModalOpen(false);
-
-      // Reload halaman biar status di store berubah jadi true
-      window.location.reload();
-    } catch (error) {
-      toast.error("Kode OTP Salah / Kadaluarsa");
-    } finally {
-      setLoading(false);
-    }
-  };
-
- 
-
-  const handleBankSubmit = (e) => {
-    e.preventDefault();
-    setIsPinOpen(true); // Buka Modal PIN
-  };
-
-  const executeSaveBank = async (pinCode) => {
-    setLoading(true);
-    try {
-
-      const payload = {
-            ...bank,
-            pin: pinCode 
-        };
-
-      await api.put("/users/update", payload);
-      toast.success("Data Rekening Berhasil Disimpan!");
-      setIsBankDialogOpen(false); 
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal menyimpan data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (isFetching)
-    return <div className="p-8 text-center">Memuat Profil...</div>;
-
-  const defaultTab = user.role === "ADMIN" ? "security" : "bank";
-
+       if (isFetching)
+        return <div className="p-8 text-center">Memuat Profil...</div>;
+    
+  
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold">Pengaturan Profil</h1>
@@ -318,7 +218,7 @@ export default function ProfilePage() {
           </Card>
         </TabsContent>
 
-        {/* TAB 2: KEAMANAN (IMPLEMENTASI BARU) */}
+        {/* TAB 2: KEAMANAN */}
         <TabsContent value="security" className="flex flex-col gap-4">
           <Card>
             <CardHeader>
@@ -432,7 +332,7 @@ export default function ProfilePage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- MODAL SETUP 2FA (BARU) --- */}
+      {/* --- MODAL SETUP 2FA */}
       <Dialog open={is2FAModalOpen} onOpenChange={setIs2FAModalOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
@@ -443,7 +343,7 @@ export default function ProfilePage() {
           </DialogHeader>
 
           <div className="flex flex-col items-center justify-center py-4 gap-4">
-            {/* Tampilkan QR Code */}
+          
             {qrCodeUrl ? (
               <div className="border-4 border-white shadow-lg rounded-lg overflow-hidden">
                 <img
@@ -482,7 +382,7 @@ export default function ProfilePage() {
       <PinModal 
           isOpen={isPinOpen} 
           onClose={() => setIsPinOpen(false)}
-          onSuccess={executeSaveBank} // <--- Jika PIN Valid, jalankan simpan
+          onSuccess={executeSaveBank} 
       />
     </div>
   );

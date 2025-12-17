@@ -1,44 +1,11 @@
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import api from "@/lib/axios"; // Pastikan path ini sesuai dengan file axios kamu
-import { toast } from "sonner";
+"use client";
+
+import { useVerifyEmail } from "@/hooks/auth/useVerifyEmail";
 
 
 
 export default function VerifyContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
-  const [status, setStatus] = useState("verifying"); // verifying | success | error
-
-  useEffect(() => {
-    const verifyUserEmail = async () => {
-      if (!token) {
-        setStatus("error");
-        return;
-      }
-
-      try {
-        // Panggil API Backend
-        await api.post("/auth/verify-email", { token });
-        
-        setStatus("success");
-        toast.success("Email berhasil diverifikasi!");
-        
-        // Redirect ke login setelah 3 detik
-        setTimeout(() => {
-          router.push("/auth/login");
-        }, 3000);
-
-      } catch (error) {
-        console.error("Verifikasi Gagal:", error);
-        setStatus("error");
-        toast.error(error.response?.data?.message || "Token tidak valid atau kadaluarsa.");
-      }
-    };
-
-    verifyUserEmail();
-  }, [token, router]);
+  const {router, status} = useVerifyEmail()
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">

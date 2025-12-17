@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
-import { Landmark, Coins, Save, Plus, Pencil, Trash2, CreditCard, ShieldCheck, Lock, KeyRound, Smartphone } from "lucide-react";
+import useUserStore from "@/store/useUserStore";
 
+import { Landmark, Coins, Save, Plus, Pencil, Trash2, CreditCard, ShieldCheck, Lock, KeyRound } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,180 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { PasswordInput } from "@/components/ui/password-input";
-import useUserStore from "@/store/useUserStore";
+import { useSettings } from "@/hooks/dashboard/settings/useSettings";
 
 export default function SettingsPage() {
-    const { user } = useUserStore();
-    const [loading, setLoading] = useState(false);
+    const { user, defaultTab, banks, fee, passForm, pinForm, loading, isModalOpen, editingBank, bankForm, previewLogo, openModal, setIsModalOpen, setBankForm, setLogoFile, handleSaveBank, handleDeleteBank, handleSaveFee, handleUpdatePassword, handleSavePin } = useSettings();
 
-    // --- STATE KEAMANAN (BARU) ---
-    const [passForm, setPassForm] = useState({ oldPass: "", newPass: "", confirmPass: "" });
-    const [pin, setPin] = useState("");
-    const [pinForm, setPinForm] = useState({ pin: "", password: "" });
-
-    
-    // Data State
-    const [banks, setBanks] = useState([]);
-    const [fee, setFee] = useState("");
-
-    // Modal State
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingBank, setEditingBank] = useState(null); // Jika null = Mode Tambah, Jika object = Mode Edit
-
-    // Form State untuk Bank
-    const [bankForm, setBankForm] = useState({ bankName: "", bankNumber: "", bankHolder: "" });
-    const [logoFile, setLogoFile] = useState(null);
-    const [previewLogo, setPreviewLogo] = useState(null);
-
-    // 1. Load Data
-    const fetchData = async () => {
-        try {
-        // Ambil List Bank
-        const resBanks = await api.get("/settings/admin-banks");
-        setBanks(resBanks.data);
-
-        // Ambil Fee (Dari endpoint setting lama)
-        const resFee = await api.get("/settings/payment");
-        setFee(resFee.data.admin_fee || "0");
-        } catch (error) {
-        console.error(error);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    // 2. Handle Buka Modal (Tambah/Edit)
-    const openModal = (bank = null) => {
-        setEditingBank(bank);
-        if (bank) {
-            // Mode Edit: Isi form dengan data bank
-            setBankForm({
-                bankName: bank.bankName,
-                bankNumber: bank.bankNumber,
-                bankHolder: bank.bankHolder
-            });
-            setPreviewLogo(bank.logoUrl ? `http://localhost:5000${bank.logoUrl}` : null);
-        } else {
-            // Mode Tambah: Kosongkan form
-            setBankForm({ bankName: "", bankNumber: "", bankHolder: "" });
-            setPreviewLogo(null);
-        }
-        setLogoFile(null);
-        setIsModalOpen(true);
-    };
-
-    // 3. Handle Simpan Bank (Add/Update)
-    const handleSaveBank = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        
-        const formData = new FormData();
-        formData.append("bankName", bankForm.bankName);
-        formData.append("bankNumber", bankForm.bankNumber);
-        formData.append("bankHolder", bankForm.bankHolder);
-        if (logoFile) formData.append("logo", logoFile);
-
-        try {
-            if (editingBank) {
-                // Update
-                await api.put(`/settings/admin-banks/${editingBank.id}`, formData);
-                toast.success("Bank berhasil diupdate");
-            } else {
-                // Create
-                await api.post("/settings/admin-banks", formData);
-                toast.success("Bank berhasil ditambahkan");
-            }
-            setIsModalOpen(false);
-            fetchData(); // Refresh data
-        } catch (error) {
-            toast.error("Gagal menyimpan bank");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // 4. Handle Hapus Bank
-    const handleDeleteBank = async (id) => {
-        if(!confirm("Yakin hapus rekening ini?")) return;
-        try {
-            await api.delete(`/admin-banks/${id}`);
-            toast.success("Bank dihapus");
-            fetchData();
-        } catch (error) {
-            toast.error("Gagal hapus");
-        }
-    };
-
-    // 5. Handle Simpan Fee
-    const handleSaveFee = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            // GANTI DARI FORM DATA KE JSON BIASA
-            await api.put("/settings/payment", {
-                admin_fee: fee
-            });
-            
-            toast.success("Fee berhasil diupdate");
-        } catch (error) {
-            toast.error("Gagal update fee");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleUpdatePassword = async (e) => {
-        e.preventDefault();
-        if (passForm.newPass !== passForm.confirmPass) {
-            return toast.error("Konfirmasi password tidak cocok!");
-        }
-        setLoading(true);
-        try {
-            await api.put("/users/change-password", {
-                currentPassword: passForm.oldPass,
-                newPassword: passForm.newPass
-            });
-            toast.success("Password berhasil diubah!");
-            setPassForm({ oldPass: "", newPass: "", confirmPass: "" }); // Reset form
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Gagal ubah password");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // --- NEW: HANDLER UPDATE PIN ---
-    const handleUpdatePin = async (e) => {
-        e.preventDefault();
-        if (pin.length !== 6) return toast.error("PIN harus 6 digit");
-        setLoading(true);
-        try {
-            await api.put("/users/pin", { pin });
-            toast.success("PIN Transaksi berhasil disimpan");
-            setPin("");
-        } catch (error) {
-            toast.error("Gagal simpan PIN");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSavePin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    // Kirim PIN + Password
-    await api.put("/users/pin", pinForm); // Sesuaikan endpoint backendmu
-    toast.success("PIN Berhasil Disimpan");
-    setPinForm({ pin: "", password: "" });
-  } catch (error) {
-    toast.error(error.response?.data?.message || "Gagal");
-  } finally {
-    setLoading(false);
-  }
-};
 
 if (!user) {
   return (
@@ -194,9 +26,6 @@ if (!user) {
     </div>
   );
 }
-
-// 👇 2. TENTUKAN TAB AWAL SESUAI ROLE
-const defaultTab = user.role === "ADMIN" ? "bank" : "security";
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
