@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import AdminGuard from "@/components/adminGuard/AdminGuard";
-import { useValidation } from "@/hooks/dashboard/validation/useValidation";
+import { useValidation } from "@/hooks/dashboard/validatioin/useValidation";
 
 export default function ValidationPage() {
   const { transactions, loading, selectedProof, setSelectedProof, handleAccept, handleReject, getStatusColor } = useValidation();
@@ -50,7 +50,7 @@ export default function ValidationPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Antrian Verifikasi ({transactions.length})</CardTitle>
+          <CardTitle>Antrian Verifikasi ({(transactions || []).length })</CardTitle>
           <CardDescription>
             Cek mutasi bank Anda sebelum menekan tombol Valid.
           </CardDescription>
@@ -58,7 +58,7 @@ export default function ValidationPage() {
         <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
           {loading ? (
             <p className="text-center py-4">Memuat data...</p>
-          ) : transactions.length === 0 ? (
+          ) : (transactions || []).length === 0 ? (
             <div className="text-center py-10 text-slate-500 border-2 border-dashed rounded-lg">
               <CheckCircle className="mx-auto h-10 w-10 mb-2 opacity-20" />
               <p>Tidak ada pembayaran yang perlu dicek saat ini.</p>
