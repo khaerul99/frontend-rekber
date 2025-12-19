@@ -13,6 +13,8 @@ export function useProfile() {
       const [loading, setLoading] = useState(false);
       const [isFetching, setIsFetching] = useState(true);
       const [isPinOpen, setIsPinOpen] = useState(false);
+      const [isEditNameOpen, setIsEditNameOpen] = useState(false);
+      const [name, setName] = useState(user.name || "");
     
       // State Modal
       const [isBankDialogOpen, setIsBankDialogOpen] = useState(false);
@@ -51,6 +53,24 @@ export function useProfile() {
     
         fetchProfile();
       }, [login]);
+
+
+      const handleUpdateName = async (e) => {
+        e.preventDefault();
+        if (!name.trim()) return toast.error("Nama tidak boleh kosong!");
+        setLoading(true);
+        try {
+            const response = await userService.updateUser({ username: name });
+            useUserStore.getState().updateUser({ username: name });
+            toast.success("Nama berhasil diubah!");
+            
+            setIsEditNameOpen(false); 
+        } catch (error) {
+            toast.error("Gagal update nama");
+        } finally {
+            setLoading(false);
+        }
+    };
     
       //  Minta QR Code ke Backend
       const handleSetup2FA = async () => {
@@ -124,6 +144,10 @@ export function useProfile() {
     otpCode,
     isFetching,
     defaultTab,
+    isEditNameOpen,
+    setName,
+    setIsEditNameOpen,
+    handleUpdateName,
     setIsPinOpen,
     setIsBankDialogOpen,
     setIs2FAModalOpen,
