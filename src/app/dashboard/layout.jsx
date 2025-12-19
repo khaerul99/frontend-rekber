@@ -38,10 +38,10 @@ export default function DashboardLayout({ children }) {
     <div className="flex min-h-screen w-full bg-slate-50/50 ">
       <Sidebar />
 
-      <div className="flex flex-1 flex-col md:pl-64 transition-all duration-300">
-       <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-white px-4 shadow-sm">
+      <div className="flex flex-1 flex-col lg:pl-64 transition-all duration-300">
+       <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b bg-white px-4 shadow-sm  ">
             
-            <div className="md:hidden">
+            <div className="lg:hidden">
                 <MobileNav />
             </div>
             <div className="ml-auto flex items-center gap-4">
@@ -50,8 +50,8 @@ export default function DashboardLayout({ children }) {
             </div>
         </header>
 
-       <main className="flex-1 w-full p-4 md:p-6 overflow-x-hidden">
-            <div className="mx-auto w-[1024px] max-w-7xl">
+       <main className="flex-1 w-auto p-4 md:p-6 overflow-x-hidden ">
+            <div className="mx-auto w-full md:w-3xl lg:w-4xl">
                 {children}
             </div>
         </main>

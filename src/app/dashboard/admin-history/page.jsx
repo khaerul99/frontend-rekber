@@ -16,14 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 import { useHistoryAdmin } from "@/hooks/dashboard/admin-history/useHistoryAdmin";
 import AdminGuard from "@/components/adminGuard/AdminGuard";
