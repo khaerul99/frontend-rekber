@@ -36,30 +36,21 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex min-h-screen w-full bg-slate-50/50 ">
-      {/* 1. Sidebar Desktop */}
       <Sidebar />
 
-      {/* 2. Main Wrapper */}
       <div className="flex flex-1 flex-col md:pl-64 transition-all duration-300">
-        {/* 3. Header Mobile */}
        <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-white px-4 shadow-sm">
             
-            {/* Tombol Menu Mobile (Kiri) */}
             <div className="md:hidden">
                 <MobileNav />
             </div>
-
-            {/* Spacer agar UserNav mojok ke kanan */}
             <div className="ml-auto flex items-center gap-4">
                <NotificationMenu />
-                {/* User Profil Dropdown (Kanan) */}
                 <UserNav />
             </div>
         </header>
 
-        {/* 4. Konten Halaman (Page.jsx masuk sini) */}
        <main className="flex-1 w-full p-4 md:p-6 overflow-x-hidden">
-            {/* Opsional: Wrapper max-width agar di layar 4K tidak terlalu lebar */}
             <div className="mx-auto w-[1024px] max-w-7xl">
                 {children}
             </div>
