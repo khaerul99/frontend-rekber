@@ -82,7 +82,7 @@ export default function HistoryPage() {
       name: 'Aksi',
       cell: (row) => (
         <Button asChild size="sm" variant="outline" className="h-8">
-            <Link href={`/dashboard/transactions/${row.id}`}>Detail</Link>
+            <Link href={`/dashboard/transaction/${row.id}`}>Detail</Link>
         </Button>
       ),
       style: { display: 'flex', justifyContent: 'center' },
@@ -96,12 +96,12 @@ export default function HistoryPage() {
       style: {
         fontSize: '14px',
         fontWeight: 'bold',
-        backgroundColor: '#f8fafc', // slate-50
+        backgroundColor: '#f8fafc', 
       },
     },
     rows: {
         style: {
-            minHeight: '60px', // override the row height
+            minHeight: '60px', 
         },
     },
   };
