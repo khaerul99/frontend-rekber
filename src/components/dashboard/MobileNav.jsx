@@ -11,7 +11,7 @@ export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-white px-2  md:hidden">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-white px-2 lg:hidden">
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon">
