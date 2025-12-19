@@ -150,7 +150,7 @@ export default function DashboardPage() {
       name: 'Aksi',
       cell: (row) => (
         <Button asChild size="sm" variant="outline" className="h-8">
-            <Link href={`/dashboard/transactions/${row.id}`}>Detail</Link>
+            <Link href={`/dashboard/transaction/${row.id}`}>Detail</Link>
         </Button>
       ),
       style: { display: 'flex', justifyContent: 'center' },
