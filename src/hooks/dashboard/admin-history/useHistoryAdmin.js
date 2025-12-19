@@ -11,11 +11,8 @@ export function useHistoryAdmin() {
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-
-  // 1. Fetch Data (Endpoint Admin)
   useEffect(() => {
     const fetchData = async () => {
 
@@ -57,6 +54,8 @@ export function useHistoryAdmin() {
 
     setFilteredTransactions(result);
   }, [search, statusFilter, transactions]);
+
+  
 
   // Helper Warna
  const getStatusColor = (status) => {

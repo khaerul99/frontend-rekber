@@ -58,7 +58,12 @@ export default function DashboardLayout({ children }) {
         </header>
 
         {/* 4. Konten Halaman (Page.jsx masuk sini) */}
-        <main className="flex-1 p-4 md:p-8 ">{children}</main>
+       <main className="flex-1 w-full p-4 md:p-6 overflow-x-hidden">
+            {/* Opsional: Wrapper max-width agar di layar 4K tidak terlalu lebar */}
+            <div className="mx-auto w-[1024px] max-w-7xl">
+                {children}
+            </div>
+        </main>
       </div>
     </div>
   );

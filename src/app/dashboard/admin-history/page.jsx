@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
-import { Search, Filter, FileText } from "lucide-react";
+import { Search, Filter, FileText, Loader2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,10 +27,113 @@ import {
 
 import { useHistoryAdmin } from "@/hooks/dashboard/admin-history/useHistoryAdmin";
 import AdminGuard from "@/components/adminGuard/AdminGuard";
+import DataTable from "react-data-table-component";
 
 export default function AdminHistoryPage() {
   const {filteredTransactions, loading, search, statusFilter,  setSearch, setStatusFilter, getStatusColor} = useHistoryAdmin();
 
+  const columns = [
+    {
+      name: 'Kode TRX',
+      selector: row => row.trx_code,
+      sortable: true, // Fitur sort otomatis aktif
+      width: '180px',
+    },
+    {
+      name: 'Pembeli',
+      selector: row => row.buyer,
+      cell: (row) => (
+        <div className="flex flex-col gap-2">
+        <Badge variant="outline" className="bg-green-50">
+           {row.buyer.username}
+        </Badge>
+        <p>
+           {row.buyer.email}
+        </p>
+        </div>
+      ),
+      width: '200px',
+      sortable: true,
+    },
+
+    {
+      name: 'Penjual',
+      selector: row => row.seller,
+      cell: (row) => (
+        <div className="flex flex-col gap-2">
+        <Badge variant="outline" className="bg-blue-50">
+           {row.seller.username}
+        </Badge>
+        <p>
+           {row.seller.email}
+        </p>
+        </div>
+      ),
+      width: '200px',
+      sortable: true,
+    },
+ 
+    {
+      name: 'Nominal',
+      selector: row => row.amount,
+      sortable: true,
+      cell: (row) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(row.amount),
+      width: '150px',
+    },
+    {
+      name: 'admin Fee',
+      selector: row => row.admin_fee,
+      sortable: true,
+      cell: (row) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(row.admin_fee),
+      width: '150px',
+
+    },
+    {
+      name: 'Tanggal',
+      selector: row => row.createdAt,
+      sortable: true,
+      cell: (row) => format(new Date(row.createdAt), "dd MMM yyyy HH:mm"),
+      width: '150px',
+
+    },
+    {
+      name: 'Status',
+      selector: row => row.status,
+      sortable: true,
+      cell: (row) => (
+        <Badge className={`${getStatusColor(row.status)} border-0`}>
+          {row.status.replace("_", " ")}
+        </Badge>
+      )
+    },
+    {
+      name: 'Aksi',
+      cell: (row) => (
+        <Button asChild size="sm" variant="outline" className="h-8">
+            <Link href={`/dashboard/transactions/${row.id}`}>Detail</Link>
+        </Button>
+      ),
+      width: '100px',
+      style: { display: 'flex', justifyContent: 'center' },
+      ignoreRowClick: true, 
+    },
+  ];
+
+
+  const customStyles = {
+    headCells: {
+      style: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        backgroundColor: '#f8fafc', // slate-50
+      },
+    },
+    rows: {
+        style: {
+            minHeight: '60px', // override the row height
+        },
+    },
+  };
 
   return (
     <AdminGuard>
@@ -80,56 +183,22 @@ export default function AdminHistoryPage() {
             <div className="text-center py-8 text-slate-500">Tidak ada data.</div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Kode TRX</TableHead>
-                    <TableHead>Pembeli</TableHead>
-                    <TableHead>Penjual</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead className="text-right">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTransactions.map((trx) => (
-                    <TableRow key={trx.id}>
-                      <TableCell className="font-mono font-medium text-xs">{trx.trx_code}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                            <span className="font-medium text-sm">{trx.buyer?.username}</span>
-                            <span className="text-[10px] text-slate-400">{trx.buyer?.email}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                            <span className="font-medium text-sm">{trx.seller?.username}</span>
-                            <span className="text-[10px] text-slate-400">{trx.seller?.email}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-bold text-green-600 text-sm">
-                         Rp {parseInt(trx.total_transfer).toLocaleString("id-ID")}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={`${getStatusColor(trx.status)} text-[10px] border-0 text-white`}>
-                          {trx.status.replace(/_/g, " ")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-500">
-                        {format(new Date(trx.createdAt), "dd/MM/yy HH:mm")}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Link href={`/dashboard/transaction/${trx.id}`}>
-                          <Button size="sm" variant="outline" className="h-8 text-xs">
-                             Detail
-                          </Button>
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+               columns={columns}
+                data={filteredTransactions} // Data sudah difilter search/status
+                
+                pagination // 👈 Fitur Pagination Aktif Otomatis!
+                paginationPerPage={10}
+                paginationRowsPerPageOptions={[10, 20, 50]}
+                
+                progressPending={loading}
+                progressComponent={<div className="p-10"><Loader2 className="animate-spin" /></div>}
+                
+                customStyles={customStyles}
+                highlightOnHover
+                pointerOnHover
+                noDataComponent={<div className="p-10 text-slate-500">Tidak ada transaksi ditemukan</div>}
+              />
             </div>
           )}
         </CardContent>
