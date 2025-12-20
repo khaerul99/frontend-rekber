@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/axios"; // Pastikan path ini sesuai dengan file axios kamu
 import { toast } from "sonner";
@@ -11,24 +11,27 @@ export function useVerifyEmail() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
-    const [status, setStatus] = useState("verifying"); 
+    const [status, setStatus] = useState(token ? "verifying" : "error");
 
+    const isRun = useRef(false);
 
      useEffect(() => {
-    const verifyUserEmail = async () => {
-      if (!token) {
-        setStatus("error");
-        return;
-      }
+
+      if (!token) return;
+
+      if (isRun.current) return;
+
+      isRun.current = true;
+      
+      const verifyUserEmail = async () => {
+    
 
       try {
-        // Panggil API Backend
         await authService.verifyEmail(token);
         
         setStatus("success");
         toast.success("Email berhasil diverifikasi!");
-        
-        // Redirect ke login setelah 3 detik
+    
         setTimeout(() => {
           router.push("/auth/login");
         }, 3000);
@@ -41,7 +44,7 @@ export function useVerifyEmail() {
     };
 
     verifyUserEmail();
-  }, [token, router]);
+  }, [token]);
 
 
 

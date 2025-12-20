@@ -8,7 +8,8 @@ import {
   Wallet,
   AlertCircle,
   ArrowUpRight,
-  Loader2
+  Loader2,
+  Eye
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,19 +33,14 @@ import DataTable from "react-data-table-component";
 
 export default function DashboardPage() {
   const { user } = useUserStore();
-
-  // State untuk User Biasa
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]); 
-
-
+  const [loading, setLoading] = useState(true);
   const [userStats, setUserStats] = useState({
     totalSpent: 0,
     totalEarned: 0,
     activeTransactions: 0,
   });
-
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,10 +62,28 @@ export default function DashboardPage() {
     if (user) fetchData();
   }, [user]);
 
-   useEffect(() => {
-    let result = [...transactions];
+  useEffect(() => {
+    if (!transactions) return;
 
-    setFilteredTransactions(result);
+    const activeStatuses = [
+      "PENDING_PAYMENT",     
+      // "VERIFYING",            
+      // "PROCESSED",            
+      // "SENT",                 
+      // "WAITING_REPLACEMENT",  
+      // "DISPUTED",            
+      // "RETURN_PROCESS",       
+      // "RETURN_SENT",          
+      // "REFUND_PENDING"      
+    ];
+
+    // 2. Filter data: Hanya ambil yang statusnya ada di daftar activeStatuses
+    const ongoingTransactions = transactions.filter((trx) => 
+      activeStatuses.includes(trx.status)
+    );
+
+    // 3. Masukkan hasil filter ke state tabel
+    setFilteredTransactions(ongoingTransactions);
 
   }, [transactions]);
 
@@ -145,16 +159,6 @@ export default function DashboardPage() {
           {row.status.replace("_", " ")}
         </Badge>
       )
-    },
-    {
-      name: 'Aksi',
-      cell: (row) => (
-        <Button asChild size="sm" variant="outline" className="h-8">
-            <Link href={`/dashboard/transaction/${row.id}`}>Detail</Link>
-        </Button>
-      ),
-      style: { display: 'flex', justifyContent: 'center' },
-      ignoreRowClick: true, 
     },
   ];
 
@@ -276,8 +280,13 @@ export default function DashboardPage() {
 
       {/* Tabel Riwayat (Tetap Ada) */}
       <Card>
-        <CardHeader>
-          <CardTitle>Riwayat Transaksi Terbaru</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Transaksi Berjalan</CardTitle>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/dashboard/history" className="text-blue-600">
+               Lihat Semua Riwayat &rarr;
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-full overflow-x-auto">
           {loading ? (

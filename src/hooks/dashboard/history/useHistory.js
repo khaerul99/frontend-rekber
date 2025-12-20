@@ -6,14 +6,38 @@ import { transactionService } from "@/services/transaction/transactionServices";
 
 export function useHistory() {
   const { user } = useUserStore();
-  
   const [allTransactions, setAllTransactions] = useState([]); 
   const [filteredTransactions, setFilteredTransactions] = useState([]); 
   const [loading, setLoading] = useState(true);
-
-  // State Filter (Pagination State DIHAPUS karena diurus library)
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [selectedTrx, setSelectedTrx] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+
+    const openDetailModal = async (row) => {
+    setIsModalOpen(true);
+    setDetailLoading(true);
+    setSelectedTrx(null);
+
+    try {
+      const freshData = await transactionService.getTransactionById(row.id);
+      setSelectedTrx(freshData);
+    } catch (error) {
+      console.error("Gagal ambil detail:", error);
+      setSelectedTrx(row);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const formatRupiah = (number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(number);
+
 
   // 1. Fetch Data
   useEffect(() => {
@@ -76,9 +100,15 @@ export function useHistory() {
   return {
     user,
     loading,
-    filteredTransactions, // Data Full (terfilter)
+    filteredTransactions, 
+    selectedTrx,
+    detailLoading,
     search, setSearch,
+    formatRupiah,
     statusFilter, setStatusFilter,
+    isModalOpen,setIsModalOpen,
+    openDetailModal,
+    closeModal,
     getStatusColor,
   };
 }

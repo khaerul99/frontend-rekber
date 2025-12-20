@@ -16,7 +16,7 @@ export const transactionService = {
   },
 
   createTransaction: async (data) => {
-    const response = await api.post("/transactions", data);
+    const response = await api.post("/transactions/create-transaction", data);
     return response.data;
   },
 

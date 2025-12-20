@@ -1,9 +1,7 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { useEffect, useState } from "react";
 import useUserStore from "@/store/useUserStore";
-import { adminService } from "@/services/admin/adminServices";
 import { transactionService } from "@/services/transaction/transactionServices";
 
 export function useHistoryAdmin() {
@@ -13,12 +11,14 @@ export function useHistoryAdmin() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [selectedTrx, setSelectedTrx] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
-
       if (!user || user.role !== "ADMIN") {
-         setLoading(false);
-         return; 
+        setLoading(false);
+        return;
       }
 
       try {
@@ -45,32 +45,76 @@ export function useHistoryAdmin() {
 
     if (search) {
       const lowerSearch = search.toLowerCase();
-      result = result.filter((trx) => 
-        trx.trx_code.toLowerCase().includes(lowerSearch) || 
-        trx.buyer?.username.toLowerCase().includes(lowerSearch) ||
-        trx.seller?.username.toLowerCase().includes(lowerSearch)
+      result = result.filter(
+        (trx) =>
+          trx.trx_code.toLowerCase().includes(lowerSearch) ||
+          trx.buyer?.username.toLowerCase().includes(lowerSearch) ||
+          trx.seller?.username.toLowerCase().includes(lowerSearch)
       );
     }
 
     setFilteredTransactions(result);
   }, [search, statusFilter, transactions]);
 
-  
+  const openDetailModal = async (row) => {
+    setIsModalOpen(true);
+    setDetailLoading(true);
+    setSelectedTrx(null);
 
-  // Helper Warna
- const getStatusColor = (status) => {
-    switch (status) {
-      case "PENDING_PAYMENT": return "bg-yellow-500 hover:bg-yellow-600";
-      case "VERIFYING": return "bg-orange-500 hover:bg-orange-600";
-      case "PROCESSED": return "bg-blue-500 hover:bg-blue-600";
-      case "SENT": return "bg-purple-500 hover:bg-purple-600";
-      case "WAITING_REPLACEMENT": return "bg-indigo-500 hover:bg-indigo-600";
-      case "COMPLETED": return "bg-green-500 hover:bg-green-600";
-      case "DISPUTED": return "bg-red-500 hover:bg-red-600";
-      case "CANCELLED": return "bg-slate-500 hover:bg-slate-600";
-      default: return "bg-slate-500";
+    try {
+      const freshData = await transactionService.getTransactionById(row.id);
+      setSelectedTrx(freshData);
+    } catch (error) {
+      console.error("Gagal ambil detail:", error);
+      setSelectedTrx(row);
+    } finally {
+      setDetailLoading(false);
     }
   };
 
-  return {statusFilter, filteredTransactions, loading, search, setSearch, setStatusFilter, getStatusColor, }
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const formatRupiah = (number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(number);
+  // Helper Warna
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "PENDING_PAYMENT":
+        return "bg-yellow-500 hover:bg-yellow-600";
+      case "VERIFYING":
+        return "bg-orange-500 hover:bg-orange-600";
+      case "PROCESSED":
+        return "bg-blue-500 hover:bg-blue-600";
+      case "SENT":
+        return "bg-purple-500 hover:bg-purple-600";
+      case "WAITING_REPLACEMENT":
+        return "bg-indigo-500 hover:bg-indigo-600";
+      case "COMPLETED":
+        return "bg-green-500 hover:bg-green-600";
+      case "DISPUTED":
+        return "bg-red-500 hover:bg-red-600";
+      case "CANCELLED":
+        return "bg-slate-500 hover:bg-slate-600";
+      default:
+        return "bg-slate-500";
+    }
+  };
+
+  return {
+    statusFilter,
+    filteredTransactions,
+    loading,
+    search,
+    isModalOpen, 
+    selectedTrx,
+    detailLoading,
+    setSearch,
+    setStatusFilter,
+    getStatusColor,
+    setIsModalOpen, 
+    openDetailModal,
+    closeModal,
+    formatRupiah
+  };
 }
