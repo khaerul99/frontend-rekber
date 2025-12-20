@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
-import { Search, Filter, Loader2 } from "lucide-react";
+import { Search, Filter, Loader2, Eye } from "lucide-react";
 import DataTable from "react-data-table-component";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,18 +17,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 
 import { useHistory } from "@/hooks/dashboard/history/useHistory";
 
 export default function HistoryPage() {
-  const { loading,
-    filteredTransactions,
-    search,
-    setSearch,
-    statusFilter,
-    setStatusFilter,
-    getStatusColor,
-    user } = useHistory();
+  const { 
+    user,
+    loading,
+    filteredTransactions, 
+    selectedTrx,
+    detailLoading,
+    formatRupiah,
+    openDetailModal,
+    search, setSearch,
+    statusFilter, setStatusFilter,
+    isModalOpen,setIsModalOpen,
+    closeModal,
+    getStatusColor,r } = useHistory();
 
     const columns = [
     {
@@ -60,13 +73,15 @@ export default function HistoryPage() {
                 {row.buyerId === user?.id ? row.seller?.email : row.buyer?.email}
             </span>
          </div>
-      )
+      ),
+      width: "250px"
     },
     {
       name: 'Nominal',
       selector: row => row.amount,
       sortable: true,
-      cell: (row) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(row.amount)
+      cell: (row) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(row.amount),
+      width:'200px',
     },
     {
       name: 'Status',
@@ -76,15 +91,29 @@ export default function HistoryPage() {
         <Badge className={`${getStatusColor(row.status)} border-0`}>
           {row.status.replace("_", " ")}
         </Badge>
-      )
+      ),
+      width: "200px"
     },
     {
       name: 'Aksi',
       cell: (row) => (
-        <Button asChild size="sm" variant="outline" className="h-8">
-            <Link href={`/dashboard/transaction/${row.id}`}>Detail</Link>
+           <div className="flex gap-2">
+        <Button 
+          onClick={() => openDetailModal(row)} 
+          size="sm" 
+          variant="outline" 
+          className="h-8 gap-2"
+        >
+            <Eye className="w-3 h-3" /> Detail
         </Button>
+        <Button asChild size="sm" variant="outline" className="h-8">
+            <Link href={`/dashboard/transaction/${row.id}`}> 
+            <Eye className="w-3 h-3" />
+            Transaction</Link>
+        </Button>
+        </div>
       ),
+      width:'200px',
       style: { display: 'flex', justifyContent: 'center' },
       ignoreRowClick: true, 
     },
@@ -171,9 +200,8 @@ export default function HistoryPage() {
           ) : (
              <DataTable
                 columns={columns}
-                data={filteredTransactions} // Data sudah difilter search/status
-                
-                pagination // 👈 Fitur Pagination Aktif Otomatis!
+                data={filteredTransactions} 
+                pagination 
                 paginationPerPage={10}
                 paginationRowsPerPageOptions={[10, 20, 50]}
                 
@@ -184,12 +212,98 @@ export default function HistoryPage() {
                 highlightOnHover
                 pointerOnHover
                 noDataComponent={<div className="p-10 text-slate-500">Tidak ada transaksi ditemukan</div>}
+                className="w-full"
             />
           )}
 
         </CardContent>
       </Card>
       
+
+       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Detail Transaksi</DialogTitle>
+              <DialogDescription>
+                Informasi lengkap mengenai transaksi terpilih.
+              </DialogDescription>
+            </DialogHeader>
+
+            {selectedTrx && (
+              <div className="grid gap-6 py-4">
+                
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border">
+                    <div>
+                        <p className="text-sm text-slate-500">Kode Transaksi</p>
+                        <p className="font-mono text-lg font-bold">{selectedTrx.trx_code}</p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-sm text-slate-500 mb-1">Status Saat Ini</p>
+                        <Badge className={`${getStatusColor(selectedTrx.status)} text-md px-3 py-1`}>
+                            {selectedTrx.status.replace("_", " ")}
+                        </Badge>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                        <p className="text-sm text-slate-500">Nominal Transaksi</p>
+                        <p className="font-semibold text-lg">{formatRupiah(selectedTrx.amount)}</p>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-sm text-slate-500">Biaya Admin (Fee)</p>
+                        <p className="font-semibold text-lg">{formatRupiah(selectedTrx.admin_fee)}</p>
+                    </div>
+                </div>
+
+                <Separator />
+
+                {/* Informasi User */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Pembeli */}
+                    <div className="space-y-3">
+                        <h4 className="font-semibold flex items-center gap-2">
+                           <Badge variant="outline" className="bg-green-100 text-green-800">Pembeli</Badge>
+                        </h4>
+                        <div className="text-sm space-y-1 border-l-2 border-green-200 pl-3">
+                            <p><span className="font-medium">Username:</span> {selectedTrx.buyer?.username}</p>
+                            <p><span className="font-medium">Email:</span> {selectedTrx.buyer?.email}</p>
+                        </div>
+                    </div>
+
+                    {/* Penjual */}
+                    <div className="space-y-3">
+                        <h4 className="font-semibold flex items-center gap-2">
+                           <Badge variant="outline" className="bg-blue-100 text-blue-800">Penjual</Badge>
+                        </h4>
+                        <div className="text-sm space-y-1 border-l-2 border-blue-200 pl-3">
+                            <p><span className="font-medium">Username:</span> {selectedTrx.seller?.username}</p>
+                            <p><span className="font-medium">Email:</span> {selectedTrx.seller?.email}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <Separator />
+
+                {/* Timeline */}
+                <div className="space-y-2">
+                    <h4 className="text-sm font-semibold">Waktu Transaksi</h4>
+                    <div className="grid grid-cols-2 text-sm">
+                         <div>
+                            <span className="text-slate-500">Dibuat pada:</span>
+                            <p className="font-medium">{format(new Date(selectedTrx.createdAt), "dd MMMM yyyy, HH:mm")}</p>
+                         </div>
+                         
+                    </div>
+                </div>
+
+              </div>
+            )}     
+            <div className="flex justify-end gap-2">
+                <Button variant="secondary" onClick={closeModal}>Tutup</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
     </div>
   );
 }

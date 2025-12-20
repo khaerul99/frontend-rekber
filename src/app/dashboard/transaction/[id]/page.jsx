@@ -188,7 +188,7 @@ export default function TransactionDetailPage() {
                           <div className="w-16 h-10 bg-slate-50 rounded border flex items-center justify-center p-1 overflow-hidden shrink-0">
                             {bank.logoUrl ? (
                               <img
-                                src={`http://localhost:5000${bank.logoUrl}`}
+                                src={bank.logoUrl}
                                 alt={bank.bankName}
                                 className="w-full h-full object-contain"
                               />
@@ -260,7 +260,7 @@ export default function TransactionDetailPage() {
                   {/* --------------------------- */}
                 </div>
 
-                {/* Tombol Upload (Tetap Sama) */}
+                {/* Tombol Upload  */}
                 <div className="space-y-3 pt-2">
                   <p className="text-xs text-slate-600">
                     Setelah transfer, upload bukti pembayaran di bawah ini.
