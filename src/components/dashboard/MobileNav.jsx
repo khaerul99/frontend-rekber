@@ -29,11 +29,9 @@ export default function MobileNav() {
            </div>
 
            <div className="flex-1">
-             {/* Pass fungsi close biar kalau diklik menu nutup sendiri */}
              <NavLinks onNavigate={() => setIsOpen(false)} />
            </div>
 
-           {/* <UserNav /> */}
         </SheetContent>
       </Sheet>
       

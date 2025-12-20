@@ -47,7 +47,7 @@ export default function HistoryPage() {
     {
       name: 'Kode TRX',
       selector: row => row.trx_code,
-      sortable: true, // Fitur sort otomatis aktif
+      sortable: true, 
       width: '180px',
     },
     {

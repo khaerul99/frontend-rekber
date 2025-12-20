@@ -27,7 +27,7 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             
-            {/* TAMPILAN 1: INPUT EMAIL & PASSWORD */}
+            {/* INPUT EMAIL & PASSWORD */}
             {step === "LOGIN" && (
                 <>
                     <div className="space-y-2">
@@ -51,7 +51,7 @@ export default function LoginPage() {
                         <Link 
                                 href="/auth/forgot-password" 
                                 className="text-xs text-blue-600 hover:underline"
-                                tabIndex="-1" // Agar tidak mengganggu urutan tab
+                                tabIndex="-1" 
                             >
                                 Lupa Password?
                             </Link>
@@ -59,7 +59,7 @@ export default function LoginPage() {
                 </>
             )}
 
-            {/* TAMPILAN 2: INPUT OTP KHUSUS */}
+            {/* INPUT OTP KHUSUS */}
             {step === "2FA" && (
                 <div className="space-y-4 py-4">
                     <div className="flex justify-center">

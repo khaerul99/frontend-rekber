@@ -13,7 +13,7 @@ export function useUsers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  // 1. Fetch Data Users
+  // Fetch Data Users
   const fetchUsers = async () => {
     try {
       const dataUser = await adminService.getAllUsers();
@@ -30,7 +30,7 @@ export function useUsers() {
     fetchUsers();
   }, []);
 
-  // 2. Search Logic
+  // Search Logic
   useEffect(() => {
     if (!search) {
       setFilteredUsers(users);
@@ -45,12 +45,12 @@ export function useUsers() {
     }
   }, [search, users]);
 
-  // 3. Handle Delete User
+  //  Handle Delete User
   const handleDelete = async (id) => {
     try {
       await adminService.deleteUser(id);
       toast.success("User berhasil dihapus");
-      fetchUsers(); // Refresh table
+      fetchUsers(); 
     } catch (error) {
       toast.error(error.response?.data?.message || "Gagal menghapus user");
     }

@@ -17,7 +17,6 @@ export function useCreateTransaction() {
   });
 
 
-  // Format angka saat mengetik nominal (Hanya angka)
   const handleAmountChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
     setForm({ ...form, amount: value });

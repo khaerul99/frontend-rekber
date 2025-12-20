@@ -60,9 +60,8 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Dashboard Admin</h1>
 
-      {/* Grid Statistik */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* Card 1: KEUNTUNGAN BERSIH */}
+        {/* Card KEUNTUNGAN BERSIH */}
         {loading ? (
           <div className="flex items-center justify-center col-span-3">
             <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
@@ -86,7 +85,7 @@ export default function AdminDashboard() {
           </Card>
         )}
 
-        {/* Card 2: DANA TERTAHAN (PENTING) */}
+        {/* Card DANA TERTAHAN (PENTING) */}
         {loading ? (
           <div className="flex items-center justify-center col-span-3">
             <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
@@ -110,7 +109,7 @@ export default function AdminDashboard() {
           </Card>
         )}
 
-        {/* Card 3: TOTAL VOLUME (Omset) */}
+        {/* Card TOTAL VOLUME (Omset) */}
         {loading ? (
           <div className="flex items-center justify-center col-span-3">
             <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
@@ -134,7 +133,7 @@ export default function AdminDashboard() {
           </Card>
         )}
 
-        {/* Card 4: PERLU VERIFIKASI */}
+        {/* Card PERLU VERIFIKASI */}
           {loading ? (
                 <div className="flex items-center justify-center col-span-3">
                     <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
@@ -173,7 +172,7 @@ export default function AdminDashboard() {
         </Card> 
         }
 
-        {/* Card 5: TRANSAKSI SUKSES */}
+        {/* Card TRANSAKSI SUKSES */}
           {loading ? (
                 <div className="flex items-center justify-center col-span-3">
                     <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
@@ -194,7 +193,7 @@ export default function AdminDashboard() {
         </Card>
         }
 
-        {/* Card 6: TOTAL MEMBER */}
+        {/* Card TOTAL MEMBER */}
           {loading ? (
                 <div className="flex items-center justify-center col-span-3">
                     <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
@@ -212,7 +211,6 @@ export default function AdminDashboard() {
         }
       </div>
 
-      {/* Bisa ditambahkan Grafik atau Tabel Recent Activity di sini nanti */}
       <div className="mt-8 p-8 border-2 border-dashed rounded-lg text-center text-slate-400">
         <DashboardChart data={chartData} />
       </div>

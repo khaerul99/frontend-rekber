@@ -108,7 +108,6 @@ export default function TransactionDetailPage() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[calc(100vh-100px)] ">
       {/* KOLOM KIRI: DETAIL & AKSI (Scrollable) */}
       <div className="lg:col-span-2 space-y-6 overflow-y-auto pr-2">
-        {/* Header Status */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
@@ -159,7 +158,7 @@ export default function TransactionDetailPage() {
           </CardContent>
         </Card>
 
-        {/* AREA AKSI (Tombol Berubah sesuai Status) */}
+        {/* AREA AKSI  */}
         <Card className="border-blue-200 bg-blue-50/50">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -257,7 +256,6 @@ export default function TransactionDetailPage() {
                       </p>
                     )}
                   </div>
-                  {/* --------------------------- */}
                 </div>
 
                 {/* Tombol Upload  */}
@@ -266,7 +264,7 @@ export default function TransactionDetailPage() {
                     Setelah transfer, upload bukti pembayaran di bawah ini.
                   </p>
 
-                  {/* KONDISI 1: BELUM ADA FILE DIPILIH */}
+                  {/* BELUM ADA FILE DIPILIH */}
                   {!selectedFile ? (
                     <>
                       <Button
@@ -275,17 +273,16 @@ export default function TransactionDetailPage() {
                       >
                         Pilih Bukti Transfer
                       </Button>
-                      {/* Input File Tetap Hidden */}
                       <input
                         type="file"
                         hidden
                         ref={fileInputRef}
-                        onChange={handleFileSelect} // Panggil fungsi select, bukan upload langsung
+                        onChange={handleFileSelect} 
                         accept="image/*"
                       />
                     </>
                   ) : (
-                    /* KONDISI 2: FILE SUDAH DIPILIH (PREVIEW MODE) */
+                    /*  FILE SUDAH DIPILIH (PREVIEW MODE) */
                     <div className="space-y-3 border-2 border-dashed border-blue-200 rounded-lg p-4 bg-blue-50/50">
                       <p className="text-xs font-bold text-blue-600 text-center mb-2">
                         Preview Bukti:
@@ -300,7 +297,7 @@ export default function TransactionDetailPage() {
                         />
                       </div>
 
-                      {/* Tombol Aksi (Kirim / Batal) */}
+                      {/* Tombol Aksi */}
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
@@ -324,7 +321,7 @@ export default function TransactionDetailPage() {
               </div>
             )}
 
-            {/* 2. JIKA STATUS PENDING & USER = PENJUAL */}
+            {/* JIKA STATUS PENDING & USER = PENJUAL */}
             {transaction.status === "PENDING_PAYMENT" && isSeller && (
               <p className="text-sm text-slate-600">
                 Menunggu pembeli melakukan pembayaran...
@@ -649,7 +646,7 @@ export default function TransactionDetailPage() {
                       type="file"
                       hidden
                       ref={returnFileRef}
-                      onChange={handleFileSelect} // Ubah handler ke handleFileSelect
+                      onChange={handleFileSelect} 
                       accept="image/*"
                     />
                   </div>
@@ -1016,14 +1013,11 @@ export default function TransactionDetailPage() {
       </Card>
 
       <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
-        {/* STYLE KHUSUS DARK MODE DI SINI (bg-black/95, text-white) */}
         <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden flex flex-col bg-white/95 border-none text-white">
-          {/* Judul untuk screen reader (wajib ada tapi tersembunyi) */}
           <DialogHeader className="sr-only">
             <DialogTitle>Preview Bukti Transaksi</DialogTitle>
           </DialogHeader>
 
-          {/* Tombol Close Custom di pojok kanan atas */}
           <button
             onClick={() => setViewImage(null)}
             className="absolute top-4 right-4 z-50 p-2 bg-white/50 hover:bg-black/80 rounded-full text-white/80 hover:text-white transition-colors"
@@ -1031,7 +1025,6 @@ export default function TransactionDetailPage() {
             {/* <X size={24} /> */}
           </button>
 
-          {/* Area Gambar */}
           <div className="flex-1 w-full h-full relative flex items-center justify-center p-4 bg-white/95 overflow-hidden">
             {viewImage ? (
               <img
@@ -1040,7 +1033,6 @@ export default function TransactionDetailPage() {
                 className="w-auto h-auto max-w-full max-h-full object-contain rounded-lg shadow-2xl"
               />
             ) : (
-              // Loading State
               <div className="flex flex-col items-center text-white/50">
                 <Loader2 className="h-10 w-10 animate-spin mb-2" />
                 <p>Memuat gambar...</p>

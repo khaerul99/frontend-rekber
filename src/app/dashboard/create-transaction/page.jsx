@@ -66,14 +66,14 @@ export default function CreateTransactionPage() {
                 <Input 
                     id="amount"
                     type="text" 
-                    className="pl-10" // Kasih padding kiri biar gak nabrak "Rp"
+                    className="pl-10" 
                     placeholder="150000"
                     value={form.amount}
                     onChange={handleAmountChange}
                     required
                 />
               </div>
-              {/* Preview Format Rupiah (Biar user gak salah nol) */}
+              
               {form.amount && (
                 <p className="text-sm text-blue-600 font-medium text-right">
                   Terbaca: Rp {parseInt(form.amount).toLocaleString("id-ID")}

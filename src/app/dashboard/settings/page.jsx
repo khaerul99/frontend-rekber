@@ -138,7 +138,7 @@ if (!user) {
             <CardContent>
                 <form onSubmit={handleSavePin} className="space-y-4">
                     
-                    {/* 1. Input PIN Baru */}
+                    {/* Input PIN Baru */}
                     <div className="space-y-2">
                         <Label>PIN Baru (6 Digit)</Label>
                         <Input 
@@ -153,7 +153,7 @@ if (!user) {
                         />
                     </div>
 
-                    {/* 2. Input Password Login (Satu baris dengan tombol biar rapi) */}
+                    {/* Input Password Login */}
                     <div className="flex gap-4 items-end">
                         <div className="space-y-2 flex-1">
                             <Label>Konfirmasi Password Login</Label>
@@ -173,7 +173,7 @@ if (!user) {
             </CardContent>
         </Card>
 
-            {/* 2. GANTI PASSWORD */}
+            {/* GANTI PASSWORD */}
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
