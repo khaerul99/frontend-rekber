@@ -1,8 +1,14 @@
 import api from "@/lib/axios";
 
 export const userService = {
+  
   getProfile: async () => {
     const response = await api.get("/users/me");
+    return response.data;
+  },
+
+  getUserById: async (id) => {
+    const response = await api.get(`/users/${id}`);
     return response.data;
   },
 

@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { userService } from "@/services/users/userServices";
 import { adminService } from "@/services/admin/adminServices";
+import { userService } from "@/services/users/userServices";
 
 export function useUsers() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   // 1. Fetch Data Users
   const fetchUsers = async () => {
@@ -55,5 +55,22 @@ export function useUsers() {
       toast.error(error.response?.data?.message || "Gagal menghapus user");
     }
   };
-  return { users, filteredUsers, search, setSearch, loading, handleDelete };
+
+  const handleViewDetail = async (row) => {
+    setIsModalOpen(true); 
+    setSelectedUser(row); 
+
+    try {
+      const freshUser = await userService.getUserById(row.id);
+      setSelectedUser(freshUser);
+    } catch (error) {
+      console.error("Gagal ambil detail user", error);
+    }
+  };
+
+  const cloceModal = () => {
+    setIsModalOpen(false)
+  }
+
+  return { users, filteredUsers, search, setSearch, loading, handleDelete, handleViewDetail, isModalOpen, cloceModal, setIsModalOpen, selectedUser };
 }
