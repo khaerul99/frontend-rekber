@@ -29,11 +29,9 @@ export function useDisbursement() {
       }
 
     try {
-      // Ambil Data Pencairan
       const dataDisbursement = await transactionService.getDisbursements();
       setTransactions(dataDisbursement);
 
-      // Ambil Data Refund
       const dataRefund = await transactionService.getRefunds();
       setRefunds(dataRefund);
     } catch (error) {
@@ -65,7 +63,7 @@ export function useDisbursement() {
       setIsPinOpen(true); 
   };
 
-  // B. Fungsi Eksekusi (Dipanggil jika PIN Benar)
+  // Fungsi Eksekusi (Dipanggil jika PIN Benar)
   const executeDisbursement = async (pinCode) => {
     setUploading(true);
     const formData = new FormData();
@@ -98,7 +96,7 @@ export function useDisbursement() {
     const file = e.target.files[0];
     if (file) {
         setProofFile(file);
-        setPreviewUrl(URL.createObjectURL(file)); // Buat URL lokal untuk preview
+        setPreviewUrl(URL.createObjectURL(file)); 
     }
 };
 

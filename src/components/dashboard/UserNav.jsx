@@ -48,7 +48,6 @@ export default function UserNav() {
 
   return (
     <>
-      {/* 1. DROPDOWN MENU */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="hiddenrelative h-10 w-10 rounded-full">
@@ -88,7 +87,6 @@ export default function UserNav() {
           
           <DropdownMenuSeparator />
           
-          {/* Tombol Logout di Dropdown (Hanya memicu state, bukan logout langsung) */}
           <DropdownMenuItem 
             onSelect={() => setShowLogoutDialog(true)} 
             className="text-red-600 cursor-pointer focus:text-red-600"
@@ -99,7 +97,6 @@ export default function UserNav() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* 2. POPUP KONFIRMASI (Terpisah dari Dropdown) */}
       <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

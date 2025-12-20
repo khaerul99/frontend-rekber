@@ -85,7 +85,6 @@ export default function DisputePage() {
                     <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                             
-                            {/* Tombol Refund (Menangkan Pembeli) */}
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <Button size="sm" variant="destructive" className="gap-1">

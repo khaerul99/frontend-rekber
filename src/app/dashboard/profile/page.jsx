@@ -94,6 +94,7 @@ export default function ProfilePage() {
           <p className="text-slate-500">{user?.email}</p>
           <div className="flex gap-2 mt-1">
             <Badge variant="secondary">Role: {user?.role || "MEMBER"}</Badge>
+
             {/* Indikator Status 2FA */}
             {user?.twofa_enabled ? (
               <Badge className="bg-green-500 hover:bg-green-600">
@@ -130,6 +131,7 @@ export default function ProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+
               {/* Status Card */}
               <div
                 className={`flex items-center justify-between rounded-lg border p-4 ${
@@ -180,7 +182,7 @@ export default function ProfilePage() {
           </Card>
         </TabsContent>
         : <>
-        {/* TAB 1: DATA REKENING */}
+        {/* DATA REKENING */}
         <TabsContent value="bank">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -269,7 +271,7 @@ export default function ProfilePage() {
                 </DialogContent>
             </Dialog>
 
-        {/* TAB 2: KEAMANAN */}
+        {/* KEAMANAN */}
         <TabsContent value="security" className="flex flex-col gap-4">
           <Card>
             <CardHeader>
@@ -280,7 +282,6 @@ export default function ProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Status Card */}
               <div
                 className={`flex items-center justify-between rounded-lg border p-4 ${
                   user?.twofa_enabled

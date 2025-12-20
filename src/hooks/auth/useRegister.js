@@ -17,7 +17,6 @@ export function useRegister() {
     confirmPassword: ''
   });
 
-  // Handle Input Change
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -25,7 +24,6 @@ export function useRegister() {
     });
   };
 
-  // Handle Submit Register
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -38,7 +36,6 @@ export function useRegister() {
     }
 
     try {
-      // Panggil API Backend
       await authService.register(form);
 
     

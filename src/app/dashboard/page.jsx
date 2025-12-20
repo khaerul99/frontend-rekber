@@ -168,12 +168,12 @@ export default function DashboardPage() {
       style: {
         fontSize: '14px',
         fontWeight: 'bold',
-        backgroundColor: '#f8fafc', // slate-50
+        backgroundColor: '#f8fafc', 
       },
     },
     rows: {
         style: {
-            minHeight: '60px', // override the row height
+            minHeight: '60px', 
         },
     },
   };
@@ -247,7 +247,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Card 3: Transaksi Aktif */}
+        {/* Transaksi Aktif */}
         <Card
           className={
             userStats.activeTransactions > 0

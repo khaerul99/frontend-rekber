@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import useUserStore from "@/store/useUserStore";
 
 export function UserGuard({ children }) {
-  // Ambil data user
   const user = useUserStore((state) => state.user);
   const router = useRouter();
 

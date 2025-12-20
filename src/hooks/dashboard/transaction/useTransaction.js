@@ -2,17 +2,15 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
-import api from "@/lib/axios";
 import useUserStore from "@/store/useUserStore";
-import { io } from "socket.io-client"; // Wajib install: npm install socket.io-client
-import { format } from "date-fns";
+import { io } from "socket.io-client"; 
 import { toast } from "sonner";
 import { transactionService } from "@/services/transaction/transactionServices";
 import { adminService } from "@/services/admin/adminServices";
 
 
 export function useTransaction() {
-  const { id } = useParams(); // Ambil ID dari URL
+  const { id } = useParams(); 
   const { user } = useUserStore();
   const socketRef = useRef();
 
@@ -27,7 +25,7 @@ export function useTransaction() {
   // State Chat
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const chatEndRef = useRef(null); // Untuk auto-scroll chat ke bawah
+  const chatEndRef = useRef(null); 
   const [viewImage, setViewImage] = useState(null);
 
   // State Upload
@@ -49,7 +47,7 @@ export function useTransaction() {
   const [comment, setComment] = useState("");
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
-  // 1. Fetch Data Transaksi & Setup Socket
+  // Fetch Data Transaksi & Setup Socket
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -107,7 +105,7 @@ export function useTransaction() {
       senderName: user.username,
     };
 
-    // 1. Kirim ke Backend via Socket
+    // Kirim ke Backend via Socket
     socketRef.current.emit("send_message", msgData);
 
     setNewMessage("");
@@ -118,7 +116,6 @@ export function useTransaction() {
     if (file) {
       setSelectedFile(file);
       setReturnFile(file);
-      // Buat URL sementara agar gambar bisa muncul
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
@@ -127,7 +124,7 @@ export function useTransaction() {
   const handleCancelUpload = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
-    if (fileInputRef.current) fileInputRef.current.value = ""; // Reset input file
+    if (fileInputRef.current) fileInputRef.current.value = ""; 
   };
 
   // --- FUNGSI UPLOAD BUKTI ---
@@ -159,16 +156,13 @@ export function useTransaction() {
     try {
       if (actionType === "sent") {
         await transactionService.updateResi(id, trackingNumber);
-        // await api.patch(`/transactions/${id}/sent`, {
-        //   trackingNumber: trackingNumber,
-        // });
+
         toast.success("Status diubah menjadi DIKIRIM");
 
       } else if (actionType === "finish") {
         await transactionService.completeOrder(id);
         toast.success("Transaksi Selesai!");
       }
-      // Tambahkan logika 'finish' atau 'complain' disini nanti
       window.location.reload();
     } catch (error) {
       toast.error("Gagal memproses aksi");
@@ -222,7 +216,7 @@ export function useTransaction() {
       });
       toast.success("Terima kasih atas ulasan Anda!");
       setIsReviewOpen(false);
-      setReviewSubmitted(true); // Hilangkan tombol setelah submit
+      setReviewSubmitted(true); 
     } catch (error) {
       toast.error("Gagal mengirim ulasan");
     }

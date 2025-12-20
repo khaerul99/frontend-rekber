@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import api from "@/lib/axios";
 import { toast } from "sonner";
 import useUserStore from "@/store/useUserStore";
-import { authService } from "@/services/auth/authServices";
 import { adminService } from "@/services/admin/adminServices";
 import { userService } from "@/services/users/userServices";
 

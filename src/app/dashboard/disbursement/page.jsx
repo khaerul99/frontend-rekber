@@ -126,9 +126,9 @@ export default function DisbursementPage() {
             </DialogHeader>
             
             <div className="py-4 space-y-4">
-                {/* LOGIKA TAMPILAN: Preview vs Input File */}
+
                 {!previewUrl ? (
-                    // KONDISI 1: Belum ada file (Tampilkan Input)
+                    // Belum ada file (Tampilkan Input)
                     <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:bg-slate-50 transition cursor-pointer relative">
                         <input 
                             type="file" 
@@ -143,7 +143,7 @@ export default function DisbursementPage() {
                         </div>
                     </div>
                 ) : (
-                    // KONDISI 2: File sudah dipilih (Tampilkan Preview)
+                    // File sudah dipilih (Tampilkan Preview)
                     <div className="relative rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
                         {/* Tombol Hapus/Ganti */}
                         <button 
@@ -174,10 +174,9 @@ export default function DisbursementPage() {
                     Batal
                 </Button>
                 
-                {/* TOMBOL INI MEMBUKA PIN MODAL (Bukan langsung upload) */}
                 <Button 
                     onClick={() => setIsPinOpen(true)} 
-                    disabled={!proofFile} // Disable kalau belum pilih file
+                    disabled={!proofFile}
                     className="bg-blue-600 hover:bg-blue-700"
                 >
                     Lanjut Konfirmasi

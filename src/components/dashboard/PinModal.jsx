@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import api from "@/lib/axios";
 import { toast } from "sonner";
 import {
   AlertDialog,

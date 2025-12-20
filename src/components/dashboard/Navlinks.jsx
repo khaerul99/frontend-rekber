@@ -22,7 +22,6 @@ export default function NavLinks({ onNavigate }) {
   const { isAdmin} = useUserStore();
 
 
-  // Struktur Data Baru: Array of Groups
   let menuGroups = [];
 
   if (isAdmin()) {

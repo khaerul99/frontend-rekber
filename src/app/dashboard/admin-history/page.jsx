@@ -35,7 +35,6 @@ export default function AdminHistoryPage() {
     search,
     isModalOpen, 
     selectedTrx,
-    detailLoading,
     formatRupiah,
     setSearch,
     setStatusFilter,
@@ -48,7 +47,7 @@ export default function AdminHistoryPage() {
     {
       name: 'Kode TRX',
       selector: row => row.trx_code,
-      sortable: true, // Fitur sort otomatis aktif
+      sortable: true, 
       width: '180px',
     },
     {
@@ -140,12 +139,12 @@ export default function AdminHistoryPage() {
       style: {
         fontSize: '14px',
         fontWeight: 'bold',
-        backgroundColor: '#f8fafc', // slate-50
+        backgroundColor: '#f8fafc', 
       },
     },
     rows: {
         style: {
-            minHeight: '60px', // override the row height
+            minHeight: '60px', 
         },
     },
   };
@@ -176,7 +175,7 @@ export default function AdminHistoryPage() {
                 <SelectItem value="VERIFYING">Verifikasi</SelectItem>
                 <SelectItem value="PROCESSED">Diproses</SelectItem>
                 <SelectItem value="SENT">Dikirim</SelectItem>
-                <SelectItem value="COMPLETED">Selesai (Belum Cair)</SelectItem> {/* Perjelas Labelnya */}
+                <SelectItem value="COMPLETED">Selesai (Belum Cair)</SelectItem> 
                 <SelectItem value="DISBURSED">Sudah Cair (TF Admin)</SelectItem>
                 <SelectItem value="DISPUTED">Sengketa</SelectItem>
                 <SelectItem value="CANCELLED">Dibatalkan</SelectItem>
@@ -257,7 +256,6 @@ export default function AdminHistoryPage() {
 
                 <Separator />
 
-                {/* Informasi User */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Pembeli */}
                     <div className="space-y-3">

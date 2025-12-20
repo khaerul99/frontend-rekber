@@ -60,7 +60,7 @@ export default function UserManagementPage() {
     {
       name: "User",
       selector: (row) => row.username,
-      sortable: true, // Fitur sort otomatis aktif
+      sortable: true, 
       width: "180px",
     },
     {
@@ -148,12 +148,12 @@ export default function UserManagementPage() {
       style: {
         fontSize: "14px",
         fontWeight: "bold",
-        backgroundColor: "#f8fafc", // slate-50
+        backgroundColor: "#f8fafc", 
       },
     },
     rows: {
       style: {
-        minHeight: "60px", // override the row height
+        minHeight: "60px",
       },
     },
   };
@@ -238,7 +238,6 @@ export default function UserManagementPage() {
 
                 {/* Informasi Detail */}
                 <div className="space-y-4">
-                  {/* Info Akun */}
                   <div className="flex items-start gap-3">
                     <User className="w-5 h-5 text-slate-400 mt-0.5" />
                     <div>

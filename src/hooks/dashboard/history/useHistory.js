@@ -57,7 +57,7 @@ export function useHistory() {
     fetchTransactions();
   }, []);
 
-  // 2. Logic Filter Search & Status
+  // Logic Filter Search & Status
   useEffect(() => {
     let result = [...allTransactions];
 
@@ -74,18 +74,13 @@ export function useHistory() {
           trx.seller?.username?.toLowerCase().includes(lowerSearch)
       );
     }
-
-    // Kita TIDAK melakukan slice/potong data disini. 
-    // Biarkan library yang memotongnya nanti.
     setFilteredTransactions(result);
 
   }, [search, statusFilter, allTransactions]);
 
-  // Helper Warna (Tetap dipakai)
   const getStatusColor = (status) => {
-     // ... (kode warna sama seperti sebelumnya) ...
      switch (status) {
-        case "PENDING_PAYMENT": return "bg-yellow-500 text-white"; // Tambah text-white biar aman
+        case "PENDING_PAYMENT": return "bg-yellow-500 text-white"; 
         case "VERIFYING": return "bg-orange-500 text-white";
         case "PROCESSED": return "bg-blue-500 text-white";
         case "SENT": return "bg-purple-500 text-white";
