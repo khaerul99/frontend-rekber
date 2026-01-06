@@ -33,19 +33,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (user?.role === "ADMIN") {
           const res = await api.get("/admin/stats");
           setStats(res.data);
 
           const resChart = await api.get("/admin/chart");
           setChartData(resChart.data);
-        } else {
-          const res = await api.get("/transactions/all");
-          setTransactions(res.data);
-
-          const resStats = await api.get("/user/stats");
-          setUserStats(resStats.data);
-        }
+        
       } catch (error) {
         console.error("Gagal ambil data dashboard", error);
       } finally {

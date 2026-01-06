@@ -13,20 +13,10 @@ import {
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-// Import di paling atas
-import DashboardChart from "@/components/dashboard/DashboardChart";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Info } from "lucide-react";
 import AdminDashboard from "./admin/page";
 import { transactionService } from "@/services/transaction/transactionServices";
 import DataTable from "react-data-table-component";
@@ -77,12 +67,10 @@ export default function DashboardPage() {
       // "REFUND_PENDING"      
     ];
 
-    // 2. Filter data: Hanya ambil yang statusnya ada di daftar activeStatuses
     const ongoingTransactions = transactions.filter((trx) => 
       activeStatuses.includes(trx.status)
     );
 
-    // 3. Masukkan hasil filter ke state tabel
     setFilteredTransactions(ongoingTransactions);
 
   }, [transactions]);
@@ -213,7 +201,7 @@ export default function DashboardPage() {
 
       {/* KARTU STATISTIK USER */}
       <div className="grid gap-4 md:grid-cols-3">
-        {/* Card 1: Pemasukan (Penjualan) */}
+        {/* Card: Pemasukan (Penjualan) */}
         <Card className="bg-green-50 border-green-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-green-700">
@@ -229,7 +217,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Card 2: Pengeluaran (Pembelian) */}
+        {/* Card: Pengeluaran (Pembelian) */}
         <Card className="bg-blue-50 border-blue-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-blue-700">
@@ -278,7 +266,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Tabel Riwayat (Tetap Ada) */}
+      {/* Tabel Riwayat */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Transaksi Berjalan</CardTitle>

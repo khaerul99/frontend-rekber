@@ -21,9 +21,8 @@ export function useValidation() {
          return; 
       }
     try {
-      const res = await transactionService.getVerifyingList();
-      console.log("DATA DARI BACKEND:", res.data);
-      setTransactions(res.data);
+      const dataListVerify = await transactionService.getVerifyingList();
+      setTransactions(dataListVerify);
     } catch (error) {
       console.error(error);
     } finally {
