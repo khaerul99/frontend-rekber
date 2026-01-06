@@ -63,11 +63,7 @@ export default function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Card KEUNTUNGAN BERSIH */}
         {loading ? (
-          // <div className="flex items-center justify-center">
-          //   <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
-          // </div>
-          <Card className="bg-gray-300 animate-pulse border-gray-300"> 
-          </Card>
+          <Card className="bg-gray-300 animate-pulse border-gray-300"/> 
   
         ) : (
           <Card className="bg-green-50 border-green-200">
@@ -90,11 +86,7 @@ export default function AdminDashboard() {
 
         {/* Card DANA TERTAHAN (PENTING) */}
         {loading ? (
-          // <div className="flex items-center justify-center">
-          //   <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
-          // </div>
-          <Card className="bg-gray-300 animate-pulse border-gray-300"> 
-          </Card>
+          <Card className="bg-gray-300 animate-pulse border-gray-300"/> 
         ) : (
           <Card className="bg-blue-50 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -116,11 +108,7 @@ export default function AdminDashboard() {
 
         {/* Card TOTAL VOLUME (Omset) */}
         {loading ? (
-            // <div className="flex items-center justify-center">
-            //   <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
-            // </div>
-            <Card className="bg-gray-300 animate-pulse border-gray-300"> 
-          </Card>
+            <Card className="bg-gray-300 animate-pulse border-gray-300"/> 
         ) : (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -142,11 +130,7 @@ export default function AdminDashboard() {
 
         {/* Card PERLU VERIFIKASI */}
           {loading ? (
-                // <div className="flex items-center justify-center">
-                //     <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
-                // </div>
-                <Card className="bg-gray-300 animate-pulse border-gray-300"> 
-          </Card>
+                <Card className="bg-gray-300 animate-pulse border-gray-300"/> 
             ) :
         <Card
           className={
@@ -183,11 +167,8 @@ export default function AdminDashboard() {
 
         {/* Card TRANSAKSI SUKSES */}
           {loading ? (
-                // <div className="flex items-center justify-center">
-                //     <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
-                // </div>
-                <Card className="bg-gray-300 animate-pulse border-gray-300"> 
-          </Card>
+                <Card className="bg-gray-300 animate-pulse border-gray-300"/> 
+          
             ) :
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -206,11 +187,7 @@ export default function AdminDashboard() {
 
         {/* Card TOTAL MEMBER */}
           {loading ? (
-                // <div className="flex items-center justify-center">
-                //     <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
-                // </div>
-                <Card className="bg-gray-300 animate-pulse border-gray-300"> 
-          </Card>
+                <Card className="bg-gray-300 animate-pulse border-gray-300"/> 
             ) :
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -225,7 +202,13 @@ export default function AdminDashboard() {
       </div>
 
       <div className="mt-8 p-8 border-2 border-dashed rounded-lg text-center text-slate-400">
-        <DashboardChart data={chartData} />
+        {loading ? (
+          <Card className="bg-gray-300 animate-pulse border-gray-300"/> 
+          
+        ) : (
+          <DashboardChart data={chartData} />
+        )
+        }
       </div>
     </div>
   );
