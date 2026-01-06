@@ -40,7 +40,7 @@ export default function AdminDashboard() {
           const resChart = await api.get("/admin/chart");
           setChartData(resChart.data);
         } else {
-          const res = await api.get("/transactions/my-transactions");
+          const res = await api.get("/transactions/all");
           setTransactions(res.data);
 
           const resStats = await api.get("/user/stats");
