@@ -63,9 +63,11 @@ export default function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Card KEUNTUNGAN BERSIH */}
         {loading ? (
-          <div className="flex items-center justify-center col-span-3">
-            <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
-          </div>
+          // <div className="flex items-center justify-center col-span-3">
+          //   <Loader2 className="animate-spin h-6 w-6 text-gray-500" />
+          // </div>
+          <Card className=" bg-gray-400/20 animate-pulse">
+            </Card>
         ) : (
           <Card className="bg-green-50 border-green-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
