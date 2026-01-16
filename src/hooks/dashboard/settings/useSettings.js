@@ -188,6 +188,7 @@ export function useSettings() {
     setIsModalOpen,
     setBankForm,
     setLogoFile,
+    setPassForm,
     openModal,
     handleSavePin,
     handleSaveBank,
