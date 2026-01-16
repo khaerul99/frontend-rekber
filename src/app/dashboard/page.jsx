@@ -57,14 +57,14 @@ export default function DashboardPage() {
 
     const activeStatuses = [
       "PENDING_PAYMENT",     
-      // "VERIFYING",            
-      // "PROCESSED",            
-      // "SENT",                 
-      // "WAITING_REPLACEMENT",  
-      // "DISPUTED",            
-      // "RETURN_PROCESS",       
-      // "RETURN_SENT",          
-      // "REFUND_PENDING"      
+      "VERIFYING",            
+      "PROCESSED",            
+      "SENT",                 
+      "WAITING_REPLACEMENT",  
+      "DISPUTED",            
+      "RETURN_PROCESS",       
+      "RETURN_SENT",          
+      "REFUND_PENDING"      
     ];
 
     const ongoingTransactions = transactions.filter((trx) => 
