@@ -1,10 +1,4 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import api from "@/lib/axios";
-import { toast } from "sonner";
-import useUserStore from "@/store/useUserStore";
-
 import { Landmark, Coins, Save, Plus, Pencil, Trash2, CreditCard, ShieldCheck, Lock, KeyRound } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,7 +10,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { useSettings } from "@/hooks/dashboard/settings/useSettings";
 
 export default function SettingsPage() {
-    const { user, defaultTab, banks, fee, passForm, pinForm, loading, isModalOpen, editingBank, bankForm, previewLogo, openModal,setPinForm, setIsModalOpen, setBankForm, setLogoFile, handleSaveBank, handleDeleteBank, handleSaveFee, handleUpdatePassword, handleSavePin } = useSettings();
+    const { user, defaultTab, banks, fee, passForm, pinForm, loading, isModalOpen, editingBank, bankForm, previewLogo, openModal,setPinForm, setIsModalOpen, setBankForm, setPassForm, setLogoFile, handleSaveBank, handleDeleteBank, handleSaveFee, handleUpdatePassword, handleSavePin } = useSettings();
 
 
 if (!user) {
@@ -58,13 +52,12 @@ if (!user) {
               </Button>
           </div>
 
-          {/* TAMPILAN LIST CARD (Looping Array) */}
           {banks.map((bank) => (
               <Card key={bank.id} className="flex flex-row items-center p-6 gap-6">
                   {/* Logo */}
                   <div className="w-20 h-12 bg-slate-50 rounded border flex items-center justify-center p-1">
                       {bank.logoUrl ? (
-                          <img src={`http://localhost:5000${bank.logoUrl}`} className="w-full h-full object-contain" />
+                          <img src={`${bank.logoUrl}`} className="w-full h-full object-contain" />
                       ) : (
                           <CreditCard className="text-slate-300" />
                       )}
